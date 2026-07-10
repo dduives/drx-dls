@@ -20,4 +20,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run test --if-present
       - run: npm run lint --if-present

@@ -4,6 +4,12 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { generateTheme } from "./generateTheme.js";
 import { emitCss, emitSwift, emitJson } from "./emitters/index.js";
+import { checkContrast, formatViolation } from "./contrast.js";
+import {
+  validateThemeInputs,
+  migrateThemeInputs,
+  formatValidationIssue,
+} from "./schema.js";
 import type { ThemeInputs } from "./types.js";
 
 type Target = "css" | "swift" | "json";
@@ -40,7 +46,23 @@ async function loadInputs(inputPath: string): Promise<ThemeInputs> {
     return {};
   }
   const raw = await readFile(abs, "utf8");
-  return JSON.parse(raw) as ThemeInputs;
+  const parsed = JSON.parse(raw) as unknown;
+
+  const result = validateThemeInputs(parsed);
+  if (!result.valid) {
+    console.error(`drx-theme: ${inputPath} failed schema validation:`);
+    for (const issue of result.errors) {
+      console.error(`  ✗ ${formatValidationIssue(issue)}`);
+    }
+    process.exit(1);
+  }
+  if (result.needsMigration) {
+    console.warn(
+      `drx-theme: ${inputPath} is schema v${result.version}; migrating to current.`,
+    );
+    return migrateThemeInputs(parsed);
+  }
+  return parsed as ThemeInputs;
 }
 
 async function main() {
@@ -54,6 +76,16 @@ async function main() {
   const { input, outDir, target } = parseArgs(argv.slice(1));
   const inputs = await loadInputs(input);
   const theme = generateTheme(inputs);
+
+  const contrast = checkContrast(theme);
+  if (!contrast.passes) {
+    console.warn(
+      `drx-theme: ${contrast.violations.length} WCAG AA contrast warning(s) (advisory):`,
+    );
+    for (const v of contrast.violations) {
+      console.warn(`  ⚠ ${formatViolation(v)}`);
+    }
+  }
 
   const targets: Target[] =
     target === "all" ? (Object.keys(EMITTERS) as Target[]) : [target as Target];

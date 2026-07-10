@@ -27,6 +27,8 @@ export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
     ...inputs,
     variants: { ...base.variants, ...(inputs.variants ?? {}) },
     fontFamily: { ...base.fontFamily, ...(inputs.fontFamily ?? {}) },
+    fontFaces: inputs.fontFaces ?? base.fontFaces ?? [],
+    formControl: { ...base.formControl, ...(inputs.formControl ?? {}) },
   };
 }
 

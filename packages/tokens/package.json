@@ -1,7 +1,7 @@
 {
   "name": "@drx-dls/tokens",
   "version": "0.0.0",
-  "description": "12-step Radix token structure, theme generator, and multi-platform emitters (CSS / Swift / JSON) for the DRX design system",
+  "description": "WebAwesome --wa-* token structure, theme generator, and multi-platform emitters (CSS / Swift / JSON) for the DRX design system",
   "license": "MIT",
   "type": "module",
   "publishConfig": {
@@ -31,7 +31,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "colorjs.io": "^0.6.1"
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@types/node": "^20.16.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }

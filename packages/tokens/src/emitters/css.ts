@@ -1,5 +1,41 @@
-import type { DeviceName, ResolvedTheme, VariantName } from "../types.js";
-import { resolveScales, tintLabel } from "./shared.js";
+import type { DeviceName, FontFace, ResolvedTheme, VariantName } from "../types.js";
+import { resolveColorRef, resolveScales, tintLabel } from "./shared.js";
+
+const FORMAT_BY_EXT: Record<string, string> = {
+  woff2: "woff2",
+  woff: "woff",
+  ttf: "truetype",
+  otf: "opentype",
+  eot: "embedded-opentype",
+  svg: "svg",
+};
+
+/** Build the CSS `src:` value for a font face, inferring format from the URL. */
+function fontFaceSrc(src: string): string {
+  // Already a full src value (url(...)/local(...)) — pass through verbatim.
+  if (/\b(url|local)\s*\(/.test(src)) return src;
+  const withoutQuery = src.split(/[?#]/)[0] ?? src;
+  const ext = withoutQuery.split(".").pop()?.toLowerCase() ?? "";
+  const format = FORMAT_BY_EXT[ext];
+  const url = `url("${src}")`;
+  return format ? `${url} format("${format}")` : url;
+}
+
+/** Emit one `@font-face` rule for a custom font. */
+function fontFaceRule(face: FontFace): string {
+  const lines = [
+    `  font-family: "${face.family}";`,
+    `  src: ${fontFaceSrc(face.src)};`,
+  ];
+  if (face.weight) lines.push(`  font-weight: ${face.weight};`);
+  if (face.style) lines.push(`  font-style: ${face.style};`);
+  lines.push(`  font-display: ${face.display ?? "swap"};`);
+  return `@font-face {\n${lines.join("\n")}\n}`;
+}
+
+function fontFaceRules(theme: ResolvedTheme): string[] {
+  return theme.identity.fontFaces.map(fontFaceRule);
+}
 
 function paletteVars(theme: ResolvedTheme): string[] {
   const out: string[] = [];
@@ -17,6 +53,18 @@ function fontVars(theme: ResolvedTheme): string[] {
     `  --wa-font-family-body: ${f.body};`,
     `  --wa-font-family-heading: ${f.heading};`,
     `  --wa-font-family-code: ${f.code};`,
+  ];
+}
+
+function formControlVars(theme: ResolvedTheme): string[] {
+  const fc = theme.identity.formControl;
+  return [
+    `  --wa-form-control-padding-block: ${fc.paddingBlock};`,
+    `  --wa-form-control-padding-inline: ${fc.paddingInline};`,
+    `  --wa-form-control-border-color: ${resolveColorRef(fc.borderColor, theme).css};`,
+    `  --wa-form-control-border-width: ${fc.borderWidth};`,
+    `  --wa-form-control-border-style: ${fc.borderStyle};`,
+    `  --wa-form-control-border-radius: ${fc.borderRadius};`,
   ];
 }
 
@@ -42,11 +90,17 @@ export function emitCss(theme: ResolvedTheme): string {
     `/* drx-dls theme: ${theme.name} — generated, do not edit by hand */`,
   );
 
+  const faces = fontFaceRules(theme);
+  if (faces.length > 0) {
+    blocks.push(faces.join("\n\n"));
+  }
+
   blocks.push(
     `:root {\n` +
       [
         ...paletteVars(theme),
         ...fontVars(theme),
+        ...formControlVars(theme),
         ...scaleVars(theme, "web"),
       ].join("\n") +
       `\n}`,
