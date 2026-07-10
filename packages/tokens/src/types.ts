@@ -68,6 +68,15 @@ export interface Identity extends ScaleKnobs {
   fontFaces: FontFace[];
   /** Form-control component-group overrides (--wa-form-control-*). */
   formControl: FormControlTokens;
+  /**
+   * Fully resolved per-device scale multipliers, always present after
+   * `resolveIdentity`. Base structure (`base.tokens.json` `devices`) deep-merged
+   * with any per-app `ThemeInputs.devices` overrides (per device, per knob).
+   * The palette/typography identity is shared across devices — only these scale
+   * knobs differ. `resolveScales(identity, identity.devices[device])` gives the
+   * effective per-device scale.
+   */
+  devices: Record<DeviceName, DeviceOverride>;
 }
 
 /** Per-device scale overrides. */
@@ -85,13 +94,20 @@ export interface BaseTokens {
 
 /** A partial identity override, as loaded from a per-app `drx.theme.json`. */
 export type ThemeInputs = Partial<
-  Omit<Identity, "variants" | "fontFamily" | "formControl">
+  Omit<Identity, "variants" | "fontFamily" | "formControl" | "devices">
 > & {
   /** Schema version this file targets (see `base.tokens.json` `version`). */
   version?: number;
   variants?: Partial<Record<VariantName, string>>;
   fontFamily?: Partial<Identity["fontFamily"]>;
   formControl?: Partial<FormControlTokens>;
+  /**
+   * Per-app overrides of the device scale multipliers. Shared palette/typography
+   * across devices; only component sizes (scale knobs) vary per device. Merged
+   * over the base structure per device, per knob — missing knobs fall back to the
+   * base device value.
+   */
+  devices?: Partial<Record<DeviceName, Partial<ScaleKnobs>>>;
 };
 
 /** A resolved 11-tint scale for one variant: tint number -> hex. */

@@ -79,15 +79,28 @@ function scaleVars(theme: ResolvedTheme, device: DeviceName): string[] {
 }
 
 /**
- * Emit theme.css targeting WebAwesome's --wa-* tokens: variant palettes
- * (mode-independent) + font families in :root with the web scale knobs, and
- * [data-device] blocks overriding the global scale knobs for iOS / tvOS.
+ * Emit theme.css targeting WebAwesome's --wa-* tokens.
+ *
+ * Combined (default, no `options.device`): variant palettes (mode-independent)
+ * + font families in `:root` with the web scale knobs, and `[data-device]`
+ * blocks overriding the global scale knobs for iOS / tvOS.
+ *
+ * Standalone (`options.device` set): a self-contained file for a single device
+ * (e.g. a separate app repo). The chosen device's resolved scale knobs live in
+ * `:root` directly and NO `[data-device]` blocks are emitted. `@font-face`
+ * rules are still emitted at the top.
  */
-export function emitCss(theme: ResolvedTheme): string {
+export function emitCss(
+  theme: ResolvedTheme,
+  options: { device?: DeviceName } = {},
+): string {
+  const { device } = options;
   const blocks: string[] = [];
 
   blocks.push(
-    `/* drx-dls theme: ${theme.name} — generated, do not edit by hand */`,
+    device
+      ? `/* drx-dls theme: ${theme.name} — ${device} — generated, do not edit by hand */`
+      : `/* drx-dls theme: ${theme.name} — generated, do not edit by hand */`,
   );
 
   const faces = fontFaceRules(theme);
@@ -101,17 +114,17 @@ export function emitCss(theme: ResolvedTheme): string {
         ...paletteVars(theme),
         ...fontVars(theme),
         ...formControlVars(theme),
-        ...scaleVars(theme, "web"),
+        ...scaleVars(theme, device ?? "web"),
       ].join("\n") +
       `\n}`,
   );
 
-  for (const device of ["ios", "tvos"] as DeviceName[]) {
-    blocks.push(
-      `[data-device="${device}"] {\n` +
-        scaleVars(theme, device).join("\n") +
-        `\n}`,
-    );
+  if (!device) {
+    for (const d of ["ios", "tvos"] as DeviceName[]) {
+      blocks.push(
+        `[data-device="${d}"] {\n` + scaleVars(theme, d).join("\n") + `\n}`,
+      );
+    }
   }
 
   return blocks.join("\n\n") + "\n";

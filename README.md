@@ -44,6 +44,37 @@ Each variant (`brand`, `neutral`, `success`, `warning`, `danger`) gets an 11-tin
 
 These emit `--wa-form-control-padding-block`, `-padding-inline`, `-border-color`, `-border-width`, `-border-style`, and `-border-radius`. `borderColor` accepts a raw hex or a variant-tint reference like `neutral-70` — the CSS emitter links it to `var(--wa-color-neutral-70)` and the Swift emitter resolves it to the palette hex. All fields have sensible defaults in `base.tokens.json`.
 
+### Per-device scale overrides
+
+One app identity is **shared** across devices — the palette and typography never vary per platform. Only the global scale knobs (component sizes) differ: `base.tokens.json` carries web / iOS / tvOS multipliers (tvOS = 10-foot, iOS = touch), and the effective per-device scale is `identity.<knob> × device.<knob>`.
+
+An app can tune those device multipliers per knob via an optional `devices` block in `drx.theme.json`. It's merged over the base device layer per device, per knob — any omitted knob falls back to the base device value; devices you don't mention are untouched:
+
+```json
+{
+  "devices": {
+    "ios":  { "radiusScale": 1.25, "fontSizeScale": 1.1 },
+    "tvos": { "spaceScale": 1.5, "fontSizeScale": 1.7 }
+  }
+}
+```
+
+`resolveIdentity` resolves these into `Identity.devices` (always present), and `generateTheme` returns them as `ResolvedTheme.devices`. `validateThemeInputs` accepts the optional block (valid device keys `web`/`ios`/`tvos`, numeric scale knobs).
+
+**Standalone per-device export.** The default `theme.css` is combined: web scales in `:root` plus `[data-device="ios"]` / `[data-device="tvos"]` blocks. When separate app repos each need their own self-contained file, emit a standalone one per device — the chosen device's resolved scales live directly in `:root` and no `[data-device]` blocks are emitted:
+
+```ts
+emitCss(theme);                    // combined (web :root + [data-device] blocks)
+emitCss(theme, { device: "ios" }); // standalone — ios scales in :root, no data-device
+```
+
+```bash
+drx-theme build --target css --device ios  --out ios-app   # → theme.css for the iOS repo
+drx-theme build --target css --device tvos --out tvos-app  # → theme.css for the tvOS repo
+```
+
+Omitting `--device` keeps the combined output unchanged.
+
 ### Custom web fonts
 
 Beyond the `fontFamily` stacks (system fonts), an app can load branded webfonts via an optional `fontFaces` array. Each entry emits one CSS `@font-face` rule (**web only**), placed before the `--wa-font-family-*` declarations; reference the loaded `family` from your `fontFamily` stacks:
@@ -112,7 +143,7 @@ import "./theme.css";   // generated from your drx.theme.json via `drx-theme bui
 </html>
 ```
 
-Set `data-device="ios"` or `"tvos"` to switch platform sizing. Swapping `theme.css` (a different `drx.theme.json`) re-themes the whole app.
+Set `data-device="ios"` or `"tvos"` to switch platform sizing. Swapping `theme.css` (a different `drx.theme.json`) re-themes the whole app. Separate iOS / tvOS app repos can instead consume a standalone `theme.css` per device (`drx-theme build --device ios|tvos`) with that device's scales baked into `:root` — no `data-device` attribute needed.
 
 ## Develop
 

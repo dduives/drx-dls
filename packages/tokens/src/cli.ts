@@ -10,9 +10,11 @@ import {
   migrateThemeInputs,
   formatValidationIssue,
 } from "./schema.js";
-import type { ThemeInputs } from "./types.js";
+import type { DeviceName, ThemeInputs } from "./types.js";
 
 type Target = "css" | "swift" | "json";
+
+const DEVICE_NAMES: DeviceName[] = ["web", "ios", "tvos"];
 
 interface EmitterSpec {
   emit: (theme: ReturnType<typeof generateTheme>) => string;
@@ -26,13 +28,20 @@ const EMITTERS: Record<Target, EmitterSpec> = {
 };
 
 function parseArgs(argv: string[]) {
-  const args = { input: "drx.theme.json", outDir: ".", target: "all" };
+  const args = {
+    input: "drx.theme.json",
+    outDir: ".",
+    target: "all",
+    device: undefined as DeviceName | undefined,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--input" || a === "-i") args.input = argv[++i] ?? args.input;
     else if (a === "--out" || a === "-o") args.outDir = argv[++i] ?? args.outDir;
     else if (a === "--target" || a === "-t")
       args.target = argv[++i] ?? args.target;
+    else if (a === "--device" || a === "-d")
+      args.device = (argv[++i] as DeviceName) ?? args.device;
   }
   return args;
 }
@@ -69,11 +78,19 @@ async function main() {
   const argv = process.argv.slice(2);
   const cmd = argv[0];
   if (cmd !== "build") {
-    console.error("Usage: drx-theme build [--input drx.theme.json] [--out dir] [--target css|swift|json|all]");
+    console.error("Usage: drx-theme build [--input drx.theme.json] [--out dir] [--target css|swift|json|all] [--device web|ios|tvos]");
     process.exit(cmd === "--help" || cmd === "-h" ? 0 : 1);
   }
 
-  const { input, outDir, target } = parseArgs(argv.slice(1));
+  const { input, outDir, target, device } = parseArgs(argv.slice(1));
+
+  if (device !== undefined && !DEVICE_NAMES.includes(device)) {
+    console.error(
+      `drx-theme: unknown device "${device}" (expected one of ${DEVICE_NAMES.join(", ")})`,
+    );
+    process.exit(1);
+  }
+
   const inputs = await loadInputs(input);
   const theme = generateTheme(inputs);
 
@@ -98,7 +115,9 @@ async function main() {
     }
     const outPath = resolve(process.cwd(), outDir, spec.file);
     await mkdir(dirname(outPath), { recursive: true });
-    await writeFile(outPath, spec.emit(theme), "utf8");
+    const output =
+      t === "css" && device ? emitCss(theme, { device }) : spec.emit(theme);
+    await writeFile(outPath, output, "utf8");
     console.log(`drx-theme: wrote ${outPath}`);
   }
 }

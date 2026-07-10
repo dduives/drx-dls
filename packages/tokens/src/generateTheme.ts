@@ -2,6 +2,8 @@ import baseTokens from "../base.tokens.json" with { type: "json" };
 import { deriveScale } from "./deriveScale.js";
 import type {
   BaseTokens,
+  DeviceName,
+  DeviceOverride,
   Identity,
   ResolvedTheme,
   ThemeInputs,
@@ -19,6 +21,22 @@ const VARIANTS: VariantName[] = [
   "danger",
 ];
 
+const DEVICES: DeviceName[] = ["web", "ios", "tvos"];
+
+/** Deep-merge per-app device overrides over the base device multipliers. */
+function resolveDevices(
+  inputs: ThemeInputs,
+): Record<DeviceName, DeviceOverride> {
+  const baseDevices = BASE.devices;
+  const overrides = inputs.devices ?? {};
+  return Object.fromEntries(
+    DEVICES.map((device): [DeviceName, DeviceOverride] => [
+      device,
+      { ...baseDevices[device], ...(overrides[device] ?? {}) },
+    ]),
+  ) as Record<DeviceName, DeviceOverride>;
+}
+
 /** Merge per-app inputs over the base identity. */
 export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
   const base = BASE.identity;
@@ -29,6 +47,7 @@ export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
     fontFamily: { ...base.fontFamily, ...(inputs.fontFamily ?? {}) },
     fontFaces: inputs.fontFaces ?? base.fontFaces ?? [],
     formControl: { ...base.formControl, ...(inputs.formControl ?? {}) },
+    devices: resolveDevices(inputs),
   };
 }
 
@@ -52,7 +71,7 @@ export function generateTheme(inputs: ThemeInputs = {}): ResolvedTheme {
     identity,
     tints: BASE.tints,
     palette,
-    devices: BASE.devices,
+    devices: identity.devices,
   };
 }
 

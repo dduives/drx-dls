@@ -27,6 +27,8 @@ const VARIANT_NAMES: VariantName[] = [
   "danger",
 ];
 
+const DEVICE_NAMES = ["web", "ios", "tvos"] as const;
+
 export interface ValidationIssue {
   /** Dotted path to the offending field, e.g. `variants.brand`. */
   path: string;
@@ -171,6 +173,45 @@ function validateFields(
             path: `formControl.${key}`,
             message: "must be a string",
           });
+        }
+      }
+    }
+  }
+
+  const { devices } = json;
+  if (devices !== undefined) {
+    if (!isPlainObject(devices)) {
+      errors.push({ path: "devices", message: "must be an object" });
+    } else {
+      for (const [device, knobs] of Object.entries(devices)) {
+        if (isMetaKey(device)) continue;
+        if (!DEVICE_NAMES.includes(device as (typeof DEVICE_NAMES)[number])) {
+          errors.push({
+            path: `devices.${device}`,
+            message: `unknown device (expected one of ${DEVICE_NAMES.join(", ")})`,
+          });
+          continue;
+        }
+        if (!isPlainObject(knobs)) {
+          errors.push({
+            path: `devices.${device}`,
+            message: "must be an object",
+          });
+          continue;
+        }
+        for (const [key, value] of Object.entries(knobs)) {
+          if (isMetaKey(key)) continue;
+          if (!SCALE_KEYS.includes(key as (typeof SCALE_KEYS)[number])) {
+            errors.push({
+              path: `devices.${device}.${key}`,
+              message: `unknown scale knob (expected one of ${SCALE_KEYS.join(", ")})`,
+            });
+          } else if (typeof value !== "number") {
+            errors.push({
+              path: `devices.${device}.${key}`,
+              message: "must be a number",
+            });
+          }
         }
       }
     }
