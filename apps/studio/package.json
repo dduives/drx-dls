@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@awesome.me/webawesome": "^3.10.0",
     "@drx-dls/tokens": "*",
     "@drx-dls/webawesome": "*",
     "react": "^19.2.7",

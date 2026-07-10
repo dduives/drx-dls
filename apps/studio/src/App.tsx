@@ -10,6 +10,7 @@ import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
+import { Gallery } from "./components/gallery/Gallery.tsx";
 
 function App() {
   const { identity } = useThemeInputs();
@@ -35,30 +36,18 @@ function App() {
         </aside>
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}
-          className="flex-1 overflow-y-auto p-4"
+          className="flex-1 overflow-y-auto p-6"
         >
           {/* This <main> IS the preview pane + theme scope root. DRI-54's
               platform toggle sets data-device="ios"|"tvos" on this same
-              element to activate the scoped device override blocks. */}
-          {/* live component gallery lands here (DRI-53) */}
-          <p className="text-sm text-neutral-400">
-            Loaded identity for &ldquo;{identity.fontFamily.body.split(",")[0]}
-            &rdquo; — brand base {identity.variants.brand}
+              element to activate the scoped device override blocks. The gallery
+              MUST live inside it so the real <wa-*> components inherit the
+              scoped --wa-* vars (CSS custom properties pierce shadow DOM). */}
+          <p className="mb-6 text-sm text-neutral-400">
+            Previewing &ldquo;{identity.fontFamily.body.split(",")[0]}&rdquo; —
+            brand base {identity.variants.brand}
           </p>
-          {/* Proof the scoped --wa-* vars apply (real gallery is DRI-53). */}
-          <div
-            className="mt-4 inline-block rounded"
-            style={{
-              background: "var(--wa-color-brand-50)",
-              color: "var(--wa-color-brand-95)",
-              borderRadius:
-                "calc(0.5rem * var(--wa-border-radius-scale, 1))",
-              padding: "calc(0.5rem * var(--wa-space-scale, 1))",
-              fontFamily: "var(--wa-font-family-body)",
-            }}
-          >
-            Live preview swatch
-          </div>
+          <Gallery />
         </main>
       </div>
     </div>
