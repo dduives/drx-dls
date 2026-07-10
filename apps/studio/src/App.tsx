@@ -8,6 +8,7 @@ import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
+import { ExportControls } from "./components/ExportControls.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
 import { Gallery } from "./components/gallery/Gallery.tsx";
@@ -26,8 +27,9 @@ function App() {
           <ProjectSwitcher />
         </div>
         <span className="flex items-center gap-3 text-sm text-neutral-500">
-          {/* platform toggle / export land here alongside the mode toggle */}
+          {/* platform toggle lands here alongside the mode toggle */}
           <ModeToggle />
+          <ExportControls />
         </span>
       </header>
       <div className="flex min-h-0 flex-1">
