@@ -37,6 +37,12 @@ export function ThemeInputsProvider({
           fontFamily: { ...prev.fontFamily, [kind]: fontValue },
         }));
       },
+      setFormControl: (patch) => {
+        setIdentity((prev) => ({
+          ...prev,
+          formControl: { ...prev.formControl, ...patch },
+        }));
+      },
       setFontFaces: (fontFaces) => {
         setIdentity((prev) => ({ ...prev, fontFaces }));
       },

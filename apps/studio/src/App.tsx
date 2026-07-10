@@ -7,9 +7,9 @@
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
-import { ContrastWarnings } from "./components/ContrastWarnings.tsx";
-import { FontFacesEditor } from "./components/FontFacesEditor.tsx";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
+import { ControlPanel } from "./components/controls/ControlPanel.tsx";
+import { ModeToggle } from "./components/controls/ModeToggle.tsx";
 
 function App() {
   const { identity } = useThemeInputs();
@@ -24,15 +24,14 @@ function App() {
           <span className="font-semibold">Theme Studio</span>
           <ProjectSwitcher />
         </div>
-        <span className="text-sm text-neutral-500">
-          {/* mode toggle / platform toggle / export land here */}
+        <span className="flex items-center gap-3 text-sm text-neutral-500">
+          {/* platform toggle / export land here alongside the mode toggle */}
+          <ModeToggle />
         </span>
       </header>
       <div className="flex min-h-0 flex-1">
-        <aside className="w-72 shrink-0 space-y-4 overflow-y-auto border-r border-neutral-200 p-4">
-          {/* control panel lands here; identity.variants.brand = {identity.variants.brand} */}
-          <ContrastWarnings />
-          <FontFacesEditor />
+        <aside className="w-72 shrink-0 overflow-y-auto border-r border-neutral-200 p-4">
+          <ControlPanel />
         </aside>
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}

@@ -1,5 +1,10 @@
 import { createContext } from "react";
-import type { FontFace, Identity, VariantName } from "@drx-dls/tokens";
+import type {
+  FontFace,
+  FormControlTokens,
+  Identity,
+  VariantName,
+} from "@drx-dls/tokens";
 
 /**
  * The single source of truth for the theme being edited. Mirrors
@@ -20,6 +25,8 @@ export interface ThemeInputsContextValue {
   setVariantColor: (variant: VariantName, hex: string) => void;
   /** Set a single font-family slot (body/heading/code). */
   setFontFamily: (kind: keyof Identity["fontFamily"], value: string) => void;
+  /** Patch the form-control token group (immutable merge over prev.formControl). */
+  setFormControl: (patch: Partial<FormControlTokens>) => void;
   /** Replace the custom `@font-face` list (web font loading). */
   setFontFaces: (fontFaces: FontFace[]) => void;
   /** Reset to base.tokens.json defaults. */
