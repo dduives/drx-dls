@@ -5,6 +5,7 @@
 const NS = "drx-studio";
 export const PROJECTS_KEY = `${NS}:projects`;
 export const ACTIVE_PROJECT_ID_KEY = `${NS}:activeProjectId`;
+export const ACTIVE_DEVICE_KEY = `${NS}:activeDevice`;
 
 function getStore(): Storage | null {
   try {
