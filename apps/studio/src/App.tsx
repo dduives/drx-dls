@@ -7,6 +7,7 @@
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { ContrastWarnings } from "./components/ContrastWarnings.tsx";
 import { FontFacesEditor } from "./components/FontFacesEditor.tsx";
+import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
 
 function App() {
   const { identity } = useThemeInputs();
@@ -14,7 +15,10 @@ function App() {
   return (
     <div className="flex h-screen w-screen flex-col bg-neutral-50 text-neutral-900">
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-200 px-4">
-        <span className="font-semibold">Theme Studio</span>
+        <div className="flex items-center gap-3">
+          <span className="font-semibold">Theme Studio</span>
+          <ProjectSwitcher />
+        </div>
         <span className="text-sm text-neutral-500">
           {/* mode toggle / platform toggle / export land here */}
         </span>
