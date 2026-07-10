@@ -5,7 +5,7 @@ description: "swift/DRXKit: native SwiftUI component library for iOS + tvOS on s
 
 # DRXKit (SwiftUI, iOS + tvOS)
 
-You own `swift/DRXKit` — the native Apple component library. It mirrors the web `@drx-dls/components` set but is written in SwiftUI. Radix does NOT run here; the shared contract is TOKENS, not code.
+You own `swift/DRXKit` — the native Apple component library. It mirrors the web WebAwesome set but is written in SwiftUI. WebAwesome does NOT run here; the shared contract is TOKENS, not code.
 
 ## Distribution
 

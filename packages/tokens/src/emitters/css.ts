@@ -1,55 +1,41 @@
-import type { Appearance, DeviceName, ResolvedTheme } from "../types.js";
-import { parseAlias, resolveDeviceMetrics } from "./shared.js";
+import type { DeviceName, ResolvedTheme, VariantName } from "../types.js";
+import { resolveScales, tintLabel } from "./shared.js";
 
-function scaleVars(theme: ResolvedTheme, appearance: Appearance): string[] {
+function paletteVars(theme: ResolvedTheme): string[] {
   const out: string[] = [];
-  const c = theme.colors[appearance];
-  for (const [name, set] of Object.entries(c.scales)) {
-    set.solid.forEach((hex, i) => out.push(`  --${name}-${i + 1}: ${hex};`));
-    set.alpha.forEach((hex, i) => out.push(`  --${name}-a${i + 1}: ${hex};`));
+  for (const [variant, scale] of Object.entries(theme.palette)) {
+    for (const { tint, hex } of scale) {
+      out.push(`  --wa-color-${variant}-${tintLabel(tint)}: ${hex};`);
+    }
   }
-  // Per-appearance specials (contrast + surfaces + background differ by mode).
-  out.push(`  --accent-contrast: ${c.contrast};`);
-  out.push(`  --accent-surface: ${c.accentSurface};`);
-  out.push(`  --gray-surface: ${c.graySurface};`);
-  out.push(`  --color-background: ${c.background};`);
-  return out;
-}
-
-function aliasVars(theme: ResolvedTheme): string[] {
-  const out = Object.entries(theme.aliases).map(([alias, ref]) => {
-    const { scale, step } = parseAlias(ref);
-    return `  --${alias}: var(--${scale}-${step});`;
-  });
-  // Text color for solid (step 9) surfaces = the generator's accent-contrast.
-  out.push(`  --color-solid-fg: var(--accent-contrast);`);
   return out;
 }
 
 function fontVars(theme: ResolvedTheme): string[] {
+  const f = theme.identity.fontFamily;
   return [
-    `  --font-sans: ${theme.identity.fontFamily.sans};`,
-    `  --font-mono: ${theme.identity.fontFamily.mono};`,
+    `  --wa-font-family-body: ${f.body};`,
+    `  --wa-font-family-heading: ${f.heading};`,
+    `  --wa-font-family-code: ${f.code};`,
   ];
 }
 
-function deviceVars(theme: ResolvedTheme, device: DeviceName): string[] {
-  const m = resolveDeviceMetrics(theme.identity, theme.devices[device]);
+function scaleVars(theme: ResolvedTheme, device: DeviceName): string[] {
+  const s = resolveScales(theme.identity, theme.devices[device]);
   return [
-    `  --radius: ${m.radius}px;`,
-    `  --font-size-base: ${m.fontSizeBase}px;`,
-    `  --spacing-base: ${m.spacingBase}px;`,
-    `  --spacing-scale: ${m.spacingScale};`,
-    `  --focus-ring-width: ${m.focusRingWidth}px;`,
-    `  --safe-area: ${m.safeArea}px;`,
-    `  --touch-target: ${m.touchTarget}px;`,
+    `  --wa-border-radius-scale: ${s.radiusScale};`,
+    `  --wa-space-scale: ${s.spaceScale};`,
+    `  --wa-font-size-scale: ${s.fontSizeScale};`,
+    `  --wa-border-width-scale: ${s.borderWidthScale};`,
   ];
 }
 
-/** Emit a theme.css with :root (default appearance + web device), plus
- *  [data-mode] and [data-device] override blocks. */
+/**
+ * Emit theme.css targeting WebAwesome's --wa-* tokens: variant palettes
+ * (mode-independent) + font families in :root with the web scale knobs, and
+ * [data-device] blocks overriding the global scale knobs for iOS / tvOS.
+ */
 export function emitCss(theme: ResolvedTheme): string {
-  const def = theme.identity.appearance;
   const blocks: string[] = [];
 
   blocks.push(
@@ -59,29 +45,22 @@ export function emitCss(theme: ResolvedTheme): string {
   blocks.push(
     `:root {\n` +
       [
-        ...scaleVars(theme, def),
-        ...aliasVars(theme),
+        ...paletteVars(theme),
         ...fontVars(theme),
-        ...deviceVars(theme, "web"),
+        ...scaleVars(theme, "web"),
       ].join("\n") +
       `\n}`,
   );
 
-  for (const appearance of ["light", "dark"] as Appearance[]) {
-    blocks.push(
-      `[data-mode="${appearance}"] {\n` +
-        scaleVars(theme, appearance).join("\n") +
-        `\n}`,
-    );
-  }
-
   for (const device of ["ios", "tvos"] as DeviceName[]) {
     blocks.push(
       `[data-device="${device}"] {\n` +
-        deviceVars(theme, device).join("\n") +
+        scaleVars(theme, device).join("\n") +
         `\n}`,
     );
   }
 
   return blocks.join("\n\n") + "\n";
 }
+
+export type { VariantName };

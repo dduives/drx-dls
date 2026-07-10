@@ -1,37 +1,20 @@
-import type { DeviceOverride, Identity } from "../types.js";
+import type { DeviceOverride, Identity, ScaleKnobs } from "../types.js";
 
-/** Parse an alias target like "accent.9" -> { scale, step }. */
-export function parseAlias(ref: string): { scale: string; step: number } {
-  const [scale, stepStr] = ref.split(".");
-  const step = Number(stepStr);
-  if (!scale || !Number.isInteger(step) || step < 1 || step > 12) {
-    throw new Error(`Invalid alias target: "${ref}" (expected e.g. "accent.9")`);
-  }
-  return { scale, step };
-}
-
-/** Resolved metric values for one device. */
-export interface DeviceMetrics {
-  radius: number;
-  fontSizeBase: number;
-  spacingBase: number;
-  spacingScale: number;
-  focusRingWidth: number;
-  safeArea: number;
-  touchTarget: number;
-}
-
-export function resolveDeviceMetrics(
+/** Compose identity scale knobs with a device's overrides (multiplicative). */
+export function resolveScales(
   identity: Identity,
   device: DeviceOverride,
-): DeviceMetrics {
+): ScaleKnobs {
+  const round = (n: number) => Math.round(n * 1000) / 1000;
   return {
-    radius: Math.round(identity.radius * device.radiusScale),
-    fontSizeBase: Math.round(device.fontSizeBase * identity.typeScale),
-    spacingBase: device.spacingBase,
-    spacingScale: device.spacingScale,
-    focusRingWidth: device.focusRingWidth,
-    safeArea: device.safeArea,
-    touchTarget: device.touchTarget ?? 0,
+    radiusScale: round(identity.radiusScale * device.radiusScale),
+    spaceScale: round(identity.spaceScale * device.spaceScale),
+    fontSizeScale: round(identity.fontSizeScale * device.fontSizeScale),
+    borderWidthScale: round(identity.borderWidthScale * device.borderWidthScale),
   };
+}
+
+/** Two-digit WebAwesome tint label: 95 -> "95", 5 -> "05". */
+export function tintLabel(tint: number): string {
+  return String(tint).padStart(2, "0");
 }

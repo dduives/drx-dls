@@ -13,7 +13,7 @@ You own the drx-dls repo plumbing — everything that isn't feature code.
 
 ```
 packages/tokens        @drx-dls/tokens
-packages/components     @drx-dls/components
+packages/webawesome     @drx-dls/webawesome
 apps/studio             @drx-dls/studio
 swift/DRXKit            SwiftPM (not npm)
 ```

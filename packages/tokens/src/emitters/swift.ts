@@ -1,5 +1,5 @@
-import type { Appearance, DeviceName, ResolvedTheme } from "../types.js";
-import { parseAlias, resolveDeviceMetrics } from "./shared.js";
+import type { DeviceName, ResolvedTheme } from "../types.js";
+import { resolveScales, tintLabel } from "./shared.js";
 
 const HEADER = `// drx-dls theme — generated, do not edit by hand.
 import SwiftUI
@@ -18,59 +18,37 @@ public extension Color {
     }
 }`;
 
-function scaleEnum(theme: ResolvedTheme, appearance: Appearance): string {
-  const name = appearance === "dark" ? "DRXColorsDark" : "DRXColorsLight";
+function paletteEnum(theme: ResolvedTheme): string {
   const lines: string[] = [];
-  const c = theme.colors[appearance];
-  for (const [scale, set] of Object.entries(c.scales)) {
-    set.solid.forEach((hex, i) => {
+  for (const [variant, scale] of Object.entries(theme.palette)) {
+    for (const { tint, hex } of scale) {
       lines.push(
-        `    public static let ${scale}${i + 1} = Color(drxHex: "${hex}")`,
+        `    public static let ${variant}${tintLabel(tint)} = Color(drxHex: "${hex}")`,
       );
-    });
+    }
   }
-  lines.push(`    public static let accentContrast = Color(drxHex: "${c.contrast}")`);
-  lines.push(`    public static let background = Color(drxHex: "${c.background}")`);
-  return `public enum ${name} {\n${lines.join("\n")}\n}`;
+  return `public enum DRXPalette {\n${lines.join("\n")}\n}`;
 }
 
-function aliasEnum(theme: ResolvedTheme): string {
-  const def =
-    theme.identity.appearance === "dark" ? "DRXColorsDark" : "DRXColorsLight";
-  const lines = Object.entries(theme.aliases).map(([alias, ref]) => {
-    const { scale, step } = parseAlias(ref);
-    const prop = alias.replace(/-([a-z])/g, (_, ch: string) => ch.toUpperCase());
-    return `    public static let ${prop} = ${def}.${scale}${step}`;
-  });
-  // Solid text color = accent contrast.
-  lines.push(`    public static let colorSolidFg = ${def}.accentContrast`);
-  return `public enum DRXColor {\n${lines.join("\n")}\n}`;
-}
-
-function metricsEnum(theme: ResolvedTheme, device: DeviceName): string {
-  const m = resolveDeviceMetrics(theme.identity, theme.devices[device]);
-  const name = `DRXMetrics${device === "tvos" ? "TVOS" : device.toUpperCase()}`;
+function scalesEnum(theme: ResolvedTheme, device: DeviceName): string {
+  const s = resolveScales(theme.identity, theme.devices[device]);
+  const name = `DRXScales${device === "tvos" ? "TVOS" : device.toUpperCase()}`;
   return `public enum ${name} {
-    public static let radius: CGFloat = ${m.radius}
-    public static let fontSizeBase: CGFloat = ${m.fontSizeBase}
-    public static let spacingBase: CGFloat = ${m.spacingBase}
-    public static let spacingScale: CGFloat = ${m.spacingScale}
-    public static let focusRingWidth: CGFloat = ${m.focusRingWidth}
-    public static let safeArea: CGFloat = ${m.safeArea}
-    public static let touchTarget: CGFloat = ${m.touchTarget}
+    public static let radiusScale: CGFloat = ${s.radiusScale}
+    public static let spaceScale: CGFloat = ${s.spaceScale}
+    public static let fontSizeScale: CGFloat = ${s.fontSizeScale}
+    public static let borderWidthScale: CGFloat = ${s.borderWidthScale}
 }`;
 }
 
-/** Emit DRXTheme.swift: dark + light color enums, alias enum, per-device metrics. */
+/** Emit DRXTheme.swift: variant palette + per-device scale knobs. */
 export function emitSwift(theme: ResolvedTheme): string {
   const parts = [
     HEADER,
-    scaleEnum(theme, "dark"),
-    scaleEnum(theme, "light"),
-    aliasEnum(theme),
-    metricsEnum(theme, "web"),
-    metricsEnum(theme, "ios"),
-    metricsEnum(theme, "tvos"),
+    paletteEnum(theme),
+    scalesEnum(theme, "web"),
+    scalesEnum(theme, "ios"),
+    scalesEnum(theme, "tvos"),
   ];
   return parts.join("\n\n") + "\n";
 }

@@ -14,7 +14,7 @@ You own `apps/studio` (`@drx-dls/studio`) — the browser app where a designer t
 2. User edits INPUTS via UI: accent hue, gray tint, radius, type scale, spacing, mode
 3. generateTheme(inputs) runs IN-BROWSER (same code as @drx-dls/tokens CLI)
      → CSS vars injected into preview
-4. Preview = REAL @drx-dls/components re-render, instant
+4. Preview = REAL WebAwesome components (<wa-*>) re-theme via the injected --wa-* vars, instant
 5. Export → drx.theme.json (inputs only). User drops it in app repo, runs drx-theme build.
 ```
 
@@ -22,7 +22,7 @@ Same generator in Studio + CLI ⇒ preview matches production exactly. Studio ed
 
 ## Stack
 
-Vite + React. Imports `@drx-dls/tokens` (generator) and `@drx-dls/components` (preview gallery). Tailwind for Studio's own chrome.
+Vite + React. Imports `@drx-dls/tokens` (generator) and renders real WebAwesome `<wa-*>` components as the preview gallery. Tailwind for Studio's own chrome.
 
 ## UI
 
@@ -33,7 +33,7 @@ Vite + React. Imports `@drx-dls/tokens` (generator) and `@drx-dls/components` (p
 ## Platform toggle
 
 Switches which Device override set is edited + previewed:
-- **Web** — accurate preview (real Radix components).
+- **Web** — accurate preview (real WebAwesome components).
 - **iOS / tvOS** — APPROXIMATE preview: device frame, 10-foot proportions for tvOS, simulated focus-ring. Good enough to tune tokens. NOT pixel-true — say so in the UI.
 - Swift export downloadable for Xcode; pixel-truth is validated in the Xcode Simulator, not here.
 

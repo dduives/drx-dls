@@ -1,14 +1,19 @@
 {
-  "$comment": "Per-app IDENTITY. Copy to your app repo as drx.theme.json and run `drx-theme build`. Only these inputs vary per app; structure comes from @drx-dls/tokens.",
-  "accent": "#f59e0b",
-  "gray": "#71717a",
-  "backgroundDark": "#111111",
-  "backgroundLight": "#ffffff",
-  "appearance": "dark",
-  "radius": 8,
-  "typeScale": 1.0,
+  "$comment": "Per-app IDENTITY for WebAwesome. Copy to your app repo as drx.theme.json and run `drx-theme build`. Only these inputs vary per app; structure comes from @drx-dls/tokens.",
+  "variants": {
+    "brand": "#f59e0b",
+    "neutral": "#71717a",
+    "success": "#16a34a",
+    "warning": "#eab308",
+    "danger": "#dc2626"
+  },
+  "radiusScale": 1.0,
+  "spaceScale": 1.0,
+  "fontSizeScale": 1.0,
+  "borderWidthScale": 1.0,
   "fontFamily": {
-    "sans": "ui-sans-serif, system-ui, sans-serif",
-    "mono": "ui-monospace, SFMono-Regular, monospace"
+    "body": "ui-sans-serif, system-ui, sans-serif",
+    "heading": "ui-sans-serif, system-ui, sans-serif",
+    "code": "ui-monospace, SFMono-Regular, monospace"
   }
 }

@@ -1,6 +1,5 @@
 ---
 "@drx-dls/tokens": minor
-"@drx-dls/components": minor
 ---
 
-Initial release. `@drx-dls/tokens` provides the 12-step Radix-semantic token model, `generateTheme()`, CSS/Swift/JSON emitters, and the `drx-theme` CLI. `@drx-dls/components` provides the web component set (Button, Badge, Card, Input, Switch, Dialog, Tabs, Tooltip) on Radix + CVA, themed via the shared Tailwind preset.
+Initial release, targeting WebAwesome. `@drx-dls/tokens` derives a WebAwesome `--wa-color-{variant}-{tint}` palette (11 tints, OKLCH) per variant from per-app identity inputs, plus global scale knobs (`--wa-*-scale`) driven by a web/iOS/tvOS device layer. Emitters for CSS, Swift (native mirror), and JSON; `drx-theme build` CLI.

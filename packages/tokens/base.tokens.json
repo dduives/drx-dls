@@ -1,86 +1,49 @@
 {
   "$schema": "./schema.json",
-  "version": 1,
+  "version": 2,
   "name": "drx-dls base tokens",
-  "comment": "STRUCTURE = source of truth for the shape of a theme. Per-app drx.theme.json overrides only the `identity` inputs. 12-step scales follow Radix Colors semantics.",
+  "comment": "STRUCTURE = source of truth for the shape of a theme, targeting WebAwesome's --wa-* token schema. Per-app drx.theme.json overrides only the `identity` inputs. Palette tints are mode-independent (WebAwesome's semantic layer handles light/dark).",
 
   "identity": {
-    "accent": "#f59e0b",
-    "gray": "#71717a",
-    "backgroundDark": "#111111",
-    "backgroundLight": "#ffffff",
-    "appearance": "dark",
-    "radius": 8,
-    "typeScale": 1.0,
+    "variants": {
+      "brand": "#f59e0b",
+      "neutral": "#71717a",
+      "success": "#16a34a",
+      "warning": "#eab308",
+      "danger": "#dc2626"
+    },
+    "radiusScale": 1.0,
+    "spaceScale": 1.0,
+    "fontSizeScale": 1.0,
+    "borderWidthScale": 1.0,
     "fontFamily": {
-      "sans": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-      "mono": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace"
+      "body": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "heading": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "code": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace"
     }
   },
 
-  "scales": ["accent", "gray"],
+  "tints": [95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5],
 
-  "stepMeaning": {
-    "1": "app background",
-    "2": "subtle background",
-    "3": "ui element background",
-    "4": "hovered ui element background",
-    "5": "active / selected background",
-    "6": "subtle border / separator",
-    "7": "ui element border, focus ring",
-    "8": "hovered border",
-    "9": "solid background (buttons, brand)",
-    "10": "hovered solid",
-    "11": "low-contrast text",
-    "12": "high-contrast text"
-  },
-
-  "aliases": {
-    "color-bg": "gray.1",
-    "color-bg-subtle": "gray.2",
-    "color-surface": "gray.2",
-    "color-element": "gray.3",
-    "color-element-hover": "gray.4",
-    "color-element-active": "gray.5",
-    "color-border-subtle": "gray.6",
-    "color-border": "gray.7",
-    "color-border-hover": "gray.8",
-    "color-muted": "gray.11",
-    "color-fg": "gray.12",
-
-    "color-solid": "accent.9",
-    "color-solid-hover": "accent.10",
-    "color-accent-bg": "accent.3",
-    "color-accent-border": "accent.7",
-    "color-accent-text": "accent.11",
-    "color-focus-ring": "accent.8"
-  },
-
+  "comment_devices": "Device layer drives WebAwesome's global scale knobs (--wa-*-scale). Identity is shared; only the scales differ per platform (tvOS = 10-foot, iOS = touch).",
   "devices": {
     "web": {
       "radiusScale": 1.0,
-      "fontSizeBase": 16,
-      "spacingBase": 4,
-      "spacingScale": 1.0,
-      "focusRingWidth": 2,
-      "safeArea": 0
+      "spaceScale": 1.0,
+      "fontSizeScale": 1.0,
+      "borderWidthScale": 1.0
     },
     "ios": {
-      "radiusScale": 1.5,
-      "fontSizeBase": 17,
-      "spacingBase": 4,
-      "spacingScale": 1.15,
-      "focusRingWidth": 0,
-      "touchTarget": 44,
-      "safeArea": 0
+      "radiusScale": 1.2,
+      "spaceScale": 1.1,
+      "fontSizeScale": 1.06,
+      "borderWidthScale": 1.0
     },
     "tvos": {
-      "radiusScale": 2.0,
-      "fontSizeBase": 29,
-      "spacingBase": 8,
-      "spacingScale": 1.5,
-      "focusRingWidth": 4,
-      "safeArea": 60
+      "radiusScale": 1.5,
+      "spaceScale": 1.4,
+      "fontSizeScale": 1.6,
+      "borderWidthScale": 1.5
     }
   }
 }

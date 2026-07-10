@@ -1,17 +1,23 @@
 import baseTokens from "../base.tokens.json" with { type: "json" };
-import { generateRadixColors } from "./vendor/generateRadixColors.js";
+import { deriveScale } from "./deriveScale.js";
 import type {
-  Appearance,
   BaseTokens,
   Identity,
-  ResolvedColors,
   ResolvedTheme,
   ThemeInputs,
+  TintScale,
+  VariantName,
 } from "./types.js";
 
 const BASE = baseTokens as unknown as BaseTokens;
 
-const APPEARANCES: Appearance[] = ["light", "dark"];
+const VARIANTS: VariantName[] = [
+  "brand",
+  "neutral",
+  "success",
+  "warning",
+  "danger",
+];
 
 /** Merge per-app inputs over the base identity. */
 export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
@@ -19,55 +25,31 @@ export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
   return {
     ...base,
     ...inputs,
+    variants: { ...base.variants, ...(inputs.variants ?? {}) },
     fontFamily: { ...base.fontFamily, ...(inputs.fontFamily ?? {}) },
   };
 }
 
-/** Run the Radix generator for one appearance and shape it into ResolvedColors. */
-function resolveColors(
-  identity: Identity,
-  appearance: Appearance,
-): ResolvedColors {
-  const result = generateRadixColors({
-    appearance,
-    accent: identity.accent,
-    gray: identity.gray,
-    background:
-      appearance === "dark" ? identity.backgroundDark : identity.backgroundLight,
-  });
-
-  return {
-    scales: {
-      accent: { solid: result.accentScale, alpha: result.accentScaleAlpha },
-      gray: { solid: result.grayScale, alpha: result.grayScaleAlpha },
-    },
-    contrast: result.accentContrast,
-    background: result.background,
-    graySurface: result.graySurface,
-    accentSurface: result.accentSurface,
-  };
-}
-
 /**
- * Expand per-app identity inputs into a fully resolved theme: real Radix
- * 12-step scales (+ alpha + accent-contrast) for light and dark, plus aliases
- * and device layers. Same function the CLI and the Studio preview call.
+ * Expand per-app identity inputs into a fully resolved theme: an 11-tint
+ * WebAwesome palette per variant (mode-independent) plus device scale layers.
+ * Same function the CLI and the Studio preview call.
  */
 export function generateTheme(inputs: ThemeInputs = {}): ResolvedTheme {
   const identity = resolveIdentity(inputs);
 
-  const colors = Object.fromEntries(
-    APPEARANCES.map((appearance): [Appearance, ResolvedColors] => [
-      appearance,
-      resolveColors(identity, appearance),
+  const palette = Object.fromEntries(
+    VARIANTS.map((variant): [VariantName, TintScale[]] => [
+      variant,
+      deriveScale(identity.variants[variant], BASE.tints),
     ]),
-  ) as Record<Appearance, ResolvedColors>;
+  ) as Record<VariantName, TintScale[]>;
 
   return {
     name: BASE.name,
     identity,
-    colors,
-    aliases: BASE.aliases,
+    tints: BASE.tints,
+    palette,
     devices: BASE.devices,
   };
 }
