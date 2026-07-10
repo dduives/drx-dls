@@ -1,5 +1,5 @@
 import baseTokens from "../base.tokens.json" with { type: "json" };
-import { generateScaleSet } from "./generateScale.js";
+import { generateRadixColors } from "./vendor/generateRadixColors.js";
 import type {
   Appearance,
   BaseTokens,
@@ -23,25 +23,44 @@ export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
   };
 }
 
+/** Run the Radix generator for one appearance and shape it into ResolvedColors. */
+function resolveColors(
+  identity: Identity,
+  appearance: Appearance,
+): ResolvedColors {
+  const result = generateRadixColors({
+    appearance,
+    accent: identity.accent,
+    gray: identity.gray,
+    background:
+      appearance === "dark" ? identity.backgroundDark : identity.backgroundLight,
+  });
+
+  return {
+    scales: {
+      accent: { solid: result.accentScale, alpha: result.accentScaleAlpha },
+      gray: { solid: result.grayScale, alpha: result.grayScaleAlpha },
+    },
+    contrast: result.accentContrast,
+    background: result.background,
+    graySurface: result.graySurface,
+    accentSurface: result.accentSurface,
+  };
+}
+
 /**
- * Expand per-app identity inputs into a fully resolved theme:
- * every color scale generated for light + dark, plus aliases and device layers.
- * Same function the CLI and the Studio preview call.
+ * Expand per-app identity inputs into a fully resolved theme: real Radix
+ * 12-step scales (+ alpha + accent-contrast) for light and dark, plus aliases
+ * and device layers. Same function the CLI and the Studio preview call.
  */
 export function generateTheme(inputs: ThemeInputs = {}): ResolvedTheme {
   const identity = resolveIdentity(inputs);
 
   const colors = Object.fromEntries(
-    APPEARANCES.map((appearance): [Appearance, ResolvedColors] => {
-      const scales = Object.fromEntries(
-        BASE.scales.map((scaleName) => {
-          const baseColor =
-            scaleName === "gray" ? identity.gray : identity.accent;
-          return [scaleName, generateScaleSet(baseColor, appearance)];
-        }),
-      );
-      return [appearance, { scales }];
-    }),
+    APPEARANCES.map((appearance): [Appearance, ResolvedColors] => [
+      appearance,
+      resolveColors(identity, appearance),
+    ]),
   ) as Record<Appearance, ResolvedColors>;
 
   return {

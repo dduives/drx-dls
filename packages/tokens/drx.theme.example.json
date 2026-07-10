@@ -2,6 +2,8 @@
   "$comment": "Per-app IDENTITY. Copy to your app repo as drx.theme.json and run `drx-theme build`. Only these inputs vary per app; structure comes from @drx-dls/tokens.",
   "accent": "#f59e0b",
   "gray": "#71717a",
+  "backgroundDark": "#111111",
+  "backgroundLight": "#ffffff",
   "appearance": "dark",
   "radius": 8,
   "typeScale": 1.0,

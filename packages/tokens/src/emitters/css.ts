@@ -3,19 +3,27 @@ import { parseAlias, resolveDeviceMetrics } from "./shared.js";
 
 function scaleVars(theme: ResolvedTheme, appearance: Appearance): string[] {
   const out: string[] = [];
-  const { scales } = theme.colors[appearance];
-  for (const [name, set] of Object.entries(scales)) {
+  const c = theme.colors[appearance];
+  for (const [name, set] of Object.entries(c.scales)) {
     set.solid.forEach((hex, i) => out.push(`  --${name}-${i + 1}: ${hex};`));
-    set.alpha.forEach((a, i) => out.push(`  --${name}-a${i + 1}: ${a.rgba};`));
+    set.alpha.forEach((hex, i) => out.push(`  --${name}-a${i + 1}: ${hex};`));
   }
+  // Per-appearance specials (contrast + surfaces + background differ by mode).
+  out.push(`  --accent-contrast: ${c.contrast};`);
+  out.push(`  --accent-surface: ${c.accentSurface};`);
+  out.push(`  --gray-surface: ${c.graySurface};`);
+  out.push(`  --color-background: ${c.background};`);
   return out;
 }
 
 function aliasVars(theme: ResolvedTheme): string[] {
-  return Object.entries(theme.aliases).map(([alias, ref]) => {
+  const out = Object.entries(theme.aliases).map(([alias, ref]) => {
     const { scale, step } = parseAlias(ref);
     return `  --${alias}: var(--${scale}-${step});`;
   });
+  // Text color for solid (step 9) surfaces = the generator's accent-contrast.
+  out.push(`  --color-solid-fg: var(--accent-contrast);`);
+  return out;
 }
 
 function fontVars(theme: ResolvedTheme): string[] {

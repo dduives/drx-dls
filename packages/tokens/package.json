@@ -34,10 +34,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "culori": "^4.0.1"
+    "@radix-ui/colors": "^3.0.0",
+    "bezier-easing": "^3.0.1",
+    "colorjs.io": "^0.6.1"
   },
   "devDependencies": {
-    "@types/culori": "^4.0.1",
     "@types/node": "^20.16.0",
     "tsup": "^8.3.0",
     "typescript": "^5.6.3"

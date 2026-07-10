@@ -8,6 +8,10 @@ export interface Identity {
   accent: string;
   /** Neutral/gray base color. */
   gray: string;
+  /** Page background for the dark appearance. */
+  backgroundDark: string;
+  /** Page background for the light appearance. */
+  backgroundLight: string;
   /** Default appearance for the app. */
   appearance: Appearance;
   /** Base corner radius in px (before per-device scaling). */
@@ -42,24 +46,23 @@ export type ThemeInputs = Partial<Identity> & {
   fontFamily?: Partial<Identity["fontFamily"]>;
 };
 
-export interface AlphaColor {
-  /** Solid color the alpha is based on. */
-  hex: string;
-  /** Alpha 0..1. */
-  alpha: number;
-  /** Precomposed rgba() string over the scale's step-1 background. */
-  rgba: string;
-}
-
-/** One 12-step scale plus its alpha variant, for one appearance. */
+/** One 12-step scale plus its alpha variant (hex8 strings), for one appearance. */
 export interface ScaleSet {
   solid: string[]; // 12 hex strings, index 0 = step 1
-  alpha: AlphaColor[]; // 12 alpha colors
+  alpha: string[]; // 12 hex8 strings (e.g. #rrggbbaa)
 }
 
 export interface ResolvedColors {
   /** scaleName -> ScaleSet */
   scales: Record<string, ScaleSet>;
+  /** Text color that sits legibly on the solid (step 9) accent. */
+  contrast: string;
+  /** Resolved page background. */
+  background: string;
+  /** Translucent gray surface (panels). */
+  graySurface: string;
+  /** Translucent accent surface. */
+  accentSurface: string;
 }
 
 /** Fully resolved theme, consumed by emitters. */

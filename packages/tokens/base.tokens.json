@@ -7,6 +7,8 @@
   "identity": {
     "accent": "#f59e0b",
     "gray": "#71717a",
+    "backgroundDark": "#111111",
+    "backgroundLight": "#ffffff",
     "appearance": "dark",
     "radius": 8,
     "typeScale": 1.0,
@@ -48,7 +50,6 @@
 
     "color-solid": "accent.9",
     "color-solid-hover": "accent.10",
-    "color-solid-fg": "gray.12",
     "color-accent-bg": "accent.3",
     "color-accent-border": "accent.7",
     "color-accent-text": "accent.11",

@@ -21,25 +21,29 @@ public extension Color {
 function scaleEnum(theme: ResolvedTheme, appearance: Appearance): string {
   const name = appearance === "dark" ? "DRXColorsDark" : "DRXColorsLight";
   const lines: string[] = [];
-  const { scales } = theme.colors[appearance];
-  for (const [scale, set] of Object.entries(scales)) {
+  const c = theme.colors[appearance];
+  for (const [scale, set] of Object.entries(c.scales)) {
     set.solid.forEach((hex, i) => {
       lines.push(
         `    public static let ${scale}${i + 1} = Color(drxHex: "${hex}")`,
       );
     });
   }
+  lines.push(`    public static let accentContrast = Color(drxHex: "${c.contrast}")`);
+  lines.push(`    public static let background = Color(drxHex: "${c.background}")`);
   return `public enum ${name} {\n${lines.join("\n")}\n}`;
 }
 
 function aliasEnum(theme: ResolvedTheme): string {
-  // Aliases resolve against the default appearance's scale enum.
-  const def = theme.identity.appearance === "dark" ? "DRXColorsDark" : "DRXColorsLight";
+  const def =
+    theme.identity.appearance === "dark" ? "DRXColorsDark" : "DRXColorsLight";
   const lines = Object.entries(theme.aliases).map(([alias, ref]) => {
     const { scale, step } = parseAlias(ref);
-    const prop = alias.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+    const prop = alias.replace(/-([a-z])/g, (_, ch: string) => ch.toUpperCase());
     return `    public static let ${prop} = ${def}.${scale}${step}`;
   });
+  // Solid text color = accent contrast.
+  lines.push(`    public static let colorSolidFg = ${def}.accentContrast`);
   return `public enum DRXColor {\n${lines.join("\n")}\n}`;
 }
 
