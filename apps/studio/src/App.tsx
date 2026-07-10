@@ -4,6 +4,7 @@
 // (studio-controls, studio-live-preview, studio-gallery,
 // studio-platform-toggle, studio-export). The shared inputs state
 // (studio-state) is already live via useThemeInputs().
+import { lazy, Suspense } from "react";
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
 import { useDevice } from "./state/useDevice.ts";
@@ -13,8 +14,11 @@ import { ExportControls } from "./components/ExportControls.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
 import { PlatformToggle } from "./components/PlatformToggle.tsx";
-import { Gallery } from "./components/gallery/Gallery.tsx";
 import { DeviceFrame } from "./components/gallery/DeviceFrame.tsx";
+
+// Code-split the WebAwesome-heavy gallery (and its component registration) out
+// of the initial chunk (DRI-68). It's fetched on first render of the preview.
+const Gallery = lazy(() => import("./components/gallery/GalleryLazy.tsx"));
 
 function App() {
   const { identity } = useThemeInputs();
@@ -57,7 +61,13 @@ function App() {
             brand base {identity.variants.brand}
           </p>
           <DeviceFrame device={device}>
-            <Gallery />
+            <Suspense
+              fallback={
+                <p className="text-sm text-neutral-400">Loading preview…</p>
+              }
+            >
+              <Gallery />
+            </Suspense>
           </DeviceFrame>
         </main>
       </div>

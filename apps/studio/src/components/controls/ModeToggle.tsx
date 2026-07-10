@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ColorScheme } from "@drx-dls/webawesome";
-import { getColorScheme, setColorScheme } from "@drx-dls/webawesome";
+import { getColorScheme, setColorScheme } from "@drx-dls/webawesome/theme";
 
 const MODES: ColorScheme[] = ["light", "dark", "auto"];
 
