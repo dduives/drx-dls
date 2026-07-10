@@ -1,0 +1,80 @@
+/* drx-dls theme: drx-dls base tokens — generated, do not edit by hand */
+
+:root {
+  --wa-color-brand-95: #fff2d9;
+  --wa-color-brand-90: #ffe4bc;
+  --wa-color-brand-80: #ffcb8d;
+  --wa-color-brand-70: #f3ae56;
+  --wa-color-brand-60: #e59309;
+  --wa-color-brand-50: #cf7c00;
+  --wa-color-brand-40: #b36a00;
+  --wa-color-brand-30: #965600;
+  --wa-color-brand-20: #784300;
+  --wa-color-brand-10: #542b00;
+  --wa-color-brand-05: #391a00;
+  --wa-color-neutral-95: #f5f5f8;
+  --wa-color-neutral-90: #ebebef;
+  --wa-color-neutral-80: #d5d5db;
+  --wa-color-neutral-70: #bdbdc5;
+  --wa-color-neutral-60: #a7a7b0;
+  --wa-color-neutral-50: #91919b;
+  --wa-color-neutral-40: #7c7c85;
+  --wa-color-neutral-30: #67676f;
+  --wa-color-neutral-20: #505058;
+  --wa-color-neutral-10: #36363c;
+  --wa-color-neutral-05: #222226;
+  --wa-color-success-95: #e3fee7;
+  --wa-color-success-90: #ccf9d3;
+  --wa-color-success-80: #a6e9b2;
+  --wa-color-success-70: #7ad68d;
+  --wa-color-success-60: #4fc36d;
+  --wa-color-success-50: #29ae54;
+  --wa-color-success-40: #00973f;
+  --wa-color-success-30: #007f2c;
+  --wa-color-success-20: #00651d;
+  --wa-color-success-10: #00460c;
+  --wa-color-success-05: #002d08;
+  --wa-color-warning-95: #fff5d8;
+  --wa-color-warning-90: #ffe9ba;
+  --wa-color-warning-80: #f2d28a;
+  --wa-color-warning-70: #e3b751;
+  --wa-color-warning-60: #d29f00;
+  --wa-color-warning-50: #bc8900;
+  --wa-color-warning-40: #a27500;
+  --wa-color-warning-30: #876000;
+  --wa-color-warning-20: #6b4b00;
+  --wa-color-warning-10: #4a3200;
+  --wa-color-warning-05: #321f00;
+  --wa-color-danger-95: #ffede9;
+  --wa-color-danger-90: #ffdfd8;
+  --wa-color-danger-80: #ffc0b6;
+  --wa-color-danger-70: #ff998c;
+  --wa-color-danger-60: #ff6e62;
+  --wa-color-danger-50: #fa4941;
+  --wa-color-danger-40: #e12c2a;
+  --wa-color-danger-30: #c20e17;
+  --wa-color-danger-20: #9e0006;
+  --wa-color-danger-10: #710000;
+  --wa-color-danger-05: #4a0001;
+  --wa-font-family-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --wa-font-family-heading: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --wa-font-family-code: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  --wa-border-radius-scale: 1;
+  --wa-space-scale: 1;
+  --wa-font-size-scale: 1;
+  --wa-border-width-scale: 1;
+}
+
+[data-device="ios"] {
+  --wa-border-radius-scale: 1.2;
+  --wa-space-scale: 1.1;
+  --wa-font-size-scale: 1.06;
+  --wa-border-width-scale: 1;
+}
+
+[data-device="tvos"] {
+  --wa-border-radius-scale: 1.5;
+  --wa-space-scale: 1.4;
+  --wa-font-size-scale: 1.6;
+  --wa-border-width-scale: 1.5;
+}
