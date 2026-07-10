@@ -43,6 +43,15 @@ export function ThemeInputsProvider({
           formControl: { ...prev.formControl, ...patch },
         }));
       },
+      setDeviceScale: (device, patch) => {
+        setIdentity((prev) => ({
+          ...prev,
+          devices: {
+            ...prev.devices,
+            [device]: { ...prev.devices[device], ...patch },
+          },
+        }));
+      },
       setFontFaces: (fontFaces) => {
         setIdentity((prev) => ({ ...prev, fontFaces }));
       },

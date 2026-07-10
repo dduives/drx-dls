@@ -6,15 +6,19 @@
 // (studio-state) is already live via useThemeInputs().
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
+import { useDevice } from "./state/useDevice.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
 import { ExportControls } from "./components/ExportControls.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
+import { PlatformToggle } from "./components/PlatformToggle.tsx";
 import { Gallery } from "./components/gallery/Gallery.tsx";
+import { DeviceFrame } from "./components/gallery/DeviceFrame.tsx";
 
 function App() {
   const { identity } = useThemeInputs();
+  const { device } = useDevice();
 
   // Live preview (DRI-52): inject the scoped --wa-* theme, keyed on identity.
   usePreviewTheme(identity);
@@ -27,7 +31,7 @@ function App() {
           <ProjectSwitcher />
         </div>
         <span className="flex items-center gap-3 text-sm text-neutral-500">
-          {/* platform toggle lands here alongside the mode toggle */}
+          <PlatformToggle />
           <ModeToggle />
           <ExportControls />
         </span>
@@ -38,18 +42,23 @@ function App() {
         </aside>
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}
+          {...(device !== "web" ? { "data-device": device } : {})}
           className="flex-1 overflow-y-auto p-6"
         >
           {/* This <main> IS the preview pane + theme scope root. DRI-54's
               platform toggle sets data-device="ios"|"tvos" on this same
-              element to activate the scoped device override blocks. The gallery
-              MUST live inside it so the real <wa-*> components inherit the
-              scoped --wa-* vars (CSS custom properties pierce shadow DOM). */}
+              element to activate the scoped device override blocks (there is no
+              [data-device="web"] block — web scales live in the scoped :root —
+              so the attribute is set only for ios/tvos). The gallery MUST live
+              inside it so the real <wa-*> components inherit the scoped --wa-*
+              vars (CSS custom properties pierce shadow DOM). */}
           <p className="mb-6 text-sm text-neutral-400">
             Previewing &ldquo;{identity.fontFamily.body.split(",")[0]}&rdquo; —
             brand base {identity.variants.brand}
           </p>
-          <Gallery />
+          <DeviceFrame device={device}>
+            <Gallery />
+          </DeviceFrame>
         </main>
       </div>
     </div>

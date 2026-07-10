@@ -4,7 +4,7 @@
 //
 // The JSON shape mirrors `packages/tokens/drx.theme.example.json` exactly:
 //   version, variants, radiusScale, spaceScale, fontSizeScale,
-//   borderWidthScale, fontFamily, fontFaces, formControl.
+//   borderWidthScale, fontFamily, fontFaces, formControl, devices.
 // `$comment` annotations from the example are dropped (they are just docs).
 // No resolved palette/values are emitted — `Identity` is already inputs-only.
 //
@@ -15,6 +15,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   emitCss,
   generateTheme,
+  type DeviceName,
   type FontFace,
   type Identity,
 } from "@drx-dls/tokens";
@@ -48,6 +49,11 @@ export function buildThemeJson(identity: Identity): string {
     fontFamily: identity.fontFamily,
     fontFaces,
     formControl: identity.formControl,
+    // Per-device scale multipliers (DRI-54/DRI-66). `Identity.devices` is fully
+    // resolved (web/ios/tvos always present); exporting the whole map keeps the
+    // file inputs-only and re-importable — `validateThemeInputs` accepts a
+    // partial-per-device `devices` object, and this is a superset of that.
+    devices: identity.devices,
   };
 
   return JSON.stringify(doc, null, 2) + "\n";
@@ -57,7 +63,12 @@ export function buildThemeJson(identity: Identity): string {
  * Build the drop-in `theme.css` for an identity: the UNSCOPED CLI output an app
  * would ship directly (`:root { … }` + `@font-face` + device blocks). This is
  * intentionally NOT the preview-scoped variant (see `scopedTheme.ts`).
+ *
+ * Combined (no `device`) → `:root` (web scales) + `[data-device]` blocks.
+ * Standalone (`device` set) → a self-contained file for one device with that
+ * device's resolved scales baked into `:root` and no `[data-device]` blocks —
+ * for dropping into a separate per-device app repo.
  */
-export function buildThemeCss(identity: Identity): string {
-  return emitCss(generateTheme(identity));
+export function buildThemeCss(identity: Identity, device?: DeviceName): string {
+  return emitCss(generateTheme(identity), device ? { device } : {});
 }

@@ -10,6 +10,7 @@ import { registerAll } from "@drx-dls/webawesome";
 import "./index.css";
 import App from "./App.tsx";
 import { ProjectsProvider } from "./state/ProjectsProvider.tsx";
+import { DeviceProvider } from "./state/DeviceProvider.tsx";
 
 // Register every bundled WebAwesome custom element and swap the icon library to
 // Phosphor. Side-effecting; must run once before the gallery first renders.
@@ -18,7 +19,9 @@ registerAll();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ProjectsProvider>
-      <App />
+      <DeviceProvider>
+        <App />
+      </DeviceProvider>
     </ProjectsProvider>
   </StrictMode>,
 );

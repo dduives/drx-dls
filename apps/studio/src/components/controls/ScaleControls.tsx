@@ -1,5 +1,6 @@
 import type { ScaleKnobs } from "@drx-dls/tokens";
 import { useThemeInputs } from "../../state/useThemeInputs.ts";
+import { useDevice } from "../../state/useDevice.ts";
 
 const KNOBS: { key: keyof ScaleKnobs; label: string }[] = [
   { key: "radiusScale", label: "Radius" },
@@ -15,18 +16,34 @@ const MAX = 2;
 const STEP = 0.05;
 
 /**
- * Sliders for the four global scale knobs. Each maps 1:1 onto a WebAwesome
- * --wa-*-scale token; written through `updateIdentity`.
+ * Sliders for the four scale knobs, device-aware (DRI-54). The palette and
+ * typography identity is shared across devices — only these scale knobs vary:
+ *   - active device = **web** -> edit the top-level global knobs
+ *     (`identity.radiusScale` etc) via `updateIdentity`. This is the web
+ *     baseline; ios/tvos multipliers compose on top of it.
+ *   - active device = ios or tvos -> edit the per-device multiplier at
+ *     `identity.devices[device].<knob>` via `setDeviceScale`.
+ * Each knob maps 1:1 onto a WebAwesome --wa-*-scale token.
  */
 export function ScaleControls() {
-  const { identity, updateIdentity } = useThemeInputs();
+  const { identity, updateIdentity, setDeviceScale } = useThemeInputs();
+  const { device } = useDevice();
+  const isWeb = device === "web";
+
+  const heading = isWeb ? "Scale — Web (global)" : `Scale — ${device}`;
+  const hint = isWeb
+    ? "Global baseline knobs, shared as the web scale."
+    : "Per-device multiplier over the web baseline.";
 
   return (
     <section className="space-y-2">
-      <h3 className="text-xs font-semibold text-neutral-700">Scale</h3>
+      <div>
+        <h3 className="text-xs font-semibold text-neutral-700">{heading}</h3>
+        <p className="text-[11px] text-neutral-400">{hint}</p>
+      </div>
       <ul className="space-y-2">
         {KNOBS.map(({ key, label }) => {
-          const value = identity[key];
+          const value = isWeb ? identity[key] : identity.devices[device][key];
           return (
             <li key={key} className="space-y-0.5">
               <div className="flex items-center justify-between text-xs text-neutral-700">
@@ -41,10 +58,15 @@ export function ScaleControls() {
                 max={MAX}
                 step={STEP}
                 value={value}
-                onChange={(e) =>
-                  updateIdentity({ [key]: Number(e.target.value) })
-                }
-                aria-label={`${label} scale`}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  if (isWeb) {
+                    updateIdentity({ [key]: next });
+                  } else {
+                    setDeviceScale(device, { [key]: next });
+                  }
+                }}
+                aria-label={`${label} scale (${device})`}
                 className="w-full cursor-pointer accent-neutral-700"
               />
             </li>
