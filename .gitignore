@@ -11,6 +11,9 @@ coverage/
 storybook-static/
 .vite/
 
+# generated demo theme for Storybook (run `npm run gen-theme`)
+packages/components/.storybook/theme.css
+
 # Swift / Xcode
 swift/**/.build/
 swift/**/*.xcodeproj/xcuserdata/
