@@ -41,6 +41,7 @@
     "@drx-dls/tokens": "*"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "tsup": "^8.3.0",
     "typescript": "^5.6.3"
   }

@@ -8,7 +8,7 @@
 
 // --- Side-effect imports (registers the custom element) -------------------
 
-import "@awesome.me/webawesome/dist/components/alert/alert.js";
+import "@awesome.me/webawesome/dist/components/callout/callout.js";
 import "@awesome.me/webawesome/dist/components/badge/badge.js";
 import "@awesome.me/webawesome/dist/components/button/button.js";
 import "@awesome.me/webawesome/dist/components/card/card.js";
@@ -26,15 +26,21 @@ import "@awesome.me/webawesome/dist/components/tab-group/tab-group.js";
 import "@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js";
 import "@awesome.me/webawesome/dist/components/tooltip/tooltip.js";
 
+import { registerPhosphorIcons } from "./icons.js";
+
 // --- Explicit opt-in functions (no-ops; kept for intent clarity) ----------
 
-/** Register all bundled WebAwesome components. */
+/**
+ * Register all bundled WebAwesome components and swap the default icon
+ * library to Phosphor Icons.
+ */
 export function registerAll(): void {
-  /* Side-effect imports above have already registered everything. */
+  /* Side-effect imports above have already registered every component. */
+  registerPhosphorIcons();
 }
 
 /** @internal Individual register stubs — use if you prefer granular imports. */
-export function registerAlert(): void { /* registered via import */ }
+export function registerCallout(): void { /* registered via import */ }
 export function registerBadge(): void { /* registered via import */ }
 export function registerButton(): void { /* registered via import */ }
 export function registerCard(): void { /* registered via import */ }

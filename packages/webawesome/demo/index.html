@@ -92,23 +92,67 @@
         <wa-button variant="neutral" size="small">Hover me</wa-button>
       </wa-tooltip>
     </div>
-    <wa-alert variant="brand" open>
+    <wa-callout variant="brand">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Info:</strong> This page is themed entirely via CSS custom properties from <code>@drx-dls/tokens</code>.
-    </wa-alert>
+    </wa-callout>
+  </section>
+
+  <!-- Icons: Phosphor (MIT) replaces the paywalled Font Awesome default -->
+  <section>
+    <h2>Icons — Phosphor</h2>
+    <p class="subtitle">
+      The default icon library is swapped to <a href="https://phosphoricons.com" target="_blank" rel="noreferrer">Phosphor</a>
+      (MIT, no paywall). Use any Phosphor name; pick a weight with <code>variant</code>.
+    </p>
+
+    <h3>Weights</h3>
+    <div class="controls" style="font-size: 2rem; gap: 1.25rem;">
+      <wa-icon name="heart" variant="thin" label="thin"></wa-icon>
+      <wa-icon name="heart" variant="light" label="light"></wa-icon>
+      <wa-icon name="heart" label="regular"></wa-icon>
+      <wa-icon name="heart" variant="bold" label="bold"></wa-icon>
+      <wa-icon name="heart" variant="fill" label="fill"></wa-icon>
+      <wa-icon name="heart" variant="duotone" label="duotone"></wa-icon>
+    </div>
+
+    <h3>Gallery</h3>
+    <div id="icon-gallery" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); font-size: 1.75rem; text-align: center;"></div>
+
+    <p style="margin-top: 1rem;">
+      In a button: <wa-button variant="brand"><wa-icon slot="start" name="download-simple"></wa-icon> Download</wa-button>
+    </p>
   </section>
 
   <script type="module">
     // Register WebAwesome components
-    import '@awesome.me/webawesome/dist/components/alert/alert.js';
+    import '@awesome.me/webawesome/dist/components/callout/callout.js';
     import '@awesome.me/webawesome/dist/components/badge/badge.js';
     import '@awesome.me/webawesome/dist/components/button/button.js';
     import '@awesome.me/webawesome/dist/components/card/card.js';
     import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
     import '@awesome.me/webawesome/dist/components/divider/divider.js';
+    import '@awesome.me/webawesome/dist/components/icon/icon.js';
     import '@awesome.me/webawesome/dist/components/input/input.js';
     import '@awesome.me/webawesome/dist/components/spinner/spinner.js';
     import '@awesome.me/webawesome/dist/components/switch/switch.js';
     import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
+
+    // Swap the default icon library to Phosphor (MIT, no paywall)
+    import { registerPhosphorIcons } from '../dist/icons.js';
+    registerPhosphorIcons();
+
+    // Populate the icon gallery with a sampling of Phosphor names
+    const sample = [
+      'house', 'user', 'gear', 'bell', 'magnifying-glass', 'heart', 'star',
+      'chat-circle', 'envelope', 'calendar-blank', 'clock', 'trash', 'pencil',
+      'download-simple', 'upload-simple', 'check', 'x', 'plus', 'minus',
+      'arrow-right', 'caret-down', 'lock', 'globe', 'image',
+    ];
+    const gallery = document.getElementById('icon-gallery');
+    gallery.innerHTML = sample
+      .map((n) => `<wa-icon name="${n}" label="${n}" title="${n}"></wa-icon>`)
+      .join('');
 
     // Dark mode toggle
     const toggle = document.getElementById('theme-toggle');

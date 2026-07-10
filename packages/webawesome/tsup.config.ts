@@ -5,6 +5,7 @@ export default defineConfig({
     "src/index.ts",
     "src/register.ts",
     "src/theme.ts",
+    "src/icons.ts",
   ],
   format: ["esm"],
   dts: true,

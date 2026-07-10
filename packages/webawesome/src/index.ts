@@ -1,6 +1,6 @@
 export {
   registerAll,
-  registerAlert,
+  registerCallout,
   registerBadge,
   registerButton,
   registerCard,
@@ -20,5 +20,12 @@ export {
 } from "./register.js";
 
 export { applyTheme, setColorScheme, getColorScheme } from "./theme.js";
+
+export {
+  registerPhosphorIcons,
+  registerIcons,
+  PHOSPHOR_VERSION,
+} from "./icons.js";
+export type { PhosphorWeight } from "./icons.js";
 
 export type { ColorScheme } from "./types.js";
