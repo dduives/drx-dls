@@ -1,0 +1,18 @@
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+coverage/
+storybook-static/
+.vite/
+
+# Swift / Xcode
+swift/**/.build/
+swift/**/*.xcodeproj/xcuserdata/
+swift/**/.swiftpm/
+DerivedData/

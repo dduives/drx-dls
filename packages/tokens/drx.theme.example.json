@@ -1,0 +1,12 @@
+{
+  "$comment": "Per-app IDENTITY. Copy to your app repo as drx.theme.json and run `drx-theme build`. Only these inputs vary per app; structure comes from @drx-dls/tokens.",
+  "accent": "#f59e0b",
+  "gray": "#71717a",
+  "appearance": "dark",
+  "radius": 8,
+  "typeScale": 1.0,
+  "fontFamily": {
+    "sans": "ui-sans-serif, system-ui, sans-serif",
+    "mono": "ui-monospace, SFMono-Regular, monospace"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "./schema.json",
+  "version": 1,
+  "name": "drx-dls base tokens",
+  "comment": "STRUCTURE = source of truth for the shape of a theme. Per-app drx.theme.json overrides only the `identity` inputs. 12-step scales follow Radix Colors semantics.",
+
+  "identity": {
+    "accent": "#f59e0b",
+    "gray": "#71717a",
+    "appearance": "dark",
+    "radius": 8,
+    "typeScale": 1.0,
+    "fontFamily": {
+      "sans": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "mono": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace"
+    }
+  },
+
+  "scales": ["accent", "gray"],
+
+  "stepMeaning": {
+    "1": "app background",
+    "2": "subtle background",
+    "3": "ui element background",
+    "4": "hovered ui element background",
+    "5": "active / selected background",
+    "6": "subtle border / separator",
+    "7": "ui element border, focus ring",
+    "8": "hovered border",
+    "9": "solid background (buttons, brand)",
+    "10": "hovered solid",
+    "11": "low-contrast text",
+    "12": "high-contrast text"
+  },
+
+  "aliases": {
+    "color-bg": "gray.1",
+    "color-bg-subtle": "gray.2",
+    "color-surface": "gray.2",
+    "color-element": "gray.3",
+    "color-element-hover": "gray.4",
+    "color-element-active": "gray.5",
+    "color-border-subtle": "gray.6",
+    "color-border": "gray.7",
+    "color-border-hover": "gray.8",
+    "color-muted": "gray.11",
+    "color-fg": "gray.12",
+
+    "color-solid": "accent.9",
+    "color-solid-hover": "accent.10",
+    "color-solid-fg": "gray.12",
+    "color-accent-bg": "accent.3",
+    "color-accent-border": "accent.7",
+    "color-accent-text": "accent.11",
+    "color-focus-ring": "accent.8"
+  },
+
+  "devices": {
+    "web": {
+      "radiusScale": 1.0,
+      "fontSizeBase": 16,
+      "spacingBase": 4,
+      "spacingScale": 1.0,
+      "focusRingWidth": 2,
+      "safeArea": 0
+    },
+    "ios": {
+      "radiusScale": 1.5,
+      "fontSizeBase": 17,
+      "spacingBase": 4,
+      "spacingScale": 1.15,
+      "focusRingWidth": 0,
+      "touchTarget": 44,
+      "safeArea": 0
+    },
+    "tvos": {
+      "radiusScale": 2.0,
+      "fontSizeBase": 29,
+      "spacingBase": 8,
+      "spacingScale": 1.5,
+      "focusRingWidth": 4,
+      "safeArea": 60
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "@drx-dls/tokens",
+  "version": "0.0.0",
+  "description": "12-step Radix token structure, theme generator, and multi-platform emitters (CSS / Swift / JSON) for the DRX design system",
+  "license": "MIT",
+  "type": "module",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dduives/drx-dls.git",
+    "directory": "packages/tokens"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./base.tokens.json": "./base.tokens.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "drx-theme": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "base.tokens.json"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "culori": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.1",
+    "@types/node": "^20.16.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.3"
+  }
+}
