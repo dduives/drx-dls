@@ -61,4 +61,11 @@ Issues are grouped into project **milestones** — each is a feature with a clea
 - **Don't `/clear` after every issue** — stay warm within a milestone (shared context). `/clear` at **milestone boundaries** (domain switch: tokens → webawesome → studio) or when context gets heavy. `RESUME_PROMPT.md` + Linear rehydrate cleanly.
 - Optionally do a short retro at each milestone completion.
 
+### Git / branch cadence
+
+- **Branch per milestone.** Start each milestone on a `feat/mN-<slug>` branch off `main` (e.g. `feat/m5-studio-polish`). Commit as you go during the milestone.
+- **Push + PR at milestone completion.** When the milestone is validated (typecheck/build/tests green), push the branch and open a PR → merge to `main`. Do not push mid-milestone WIP unless asked.
+- **`main` is the integration/release branch.** Changesets accumulate on `main`; a "Version Packages" PR handles releases. Keep finished, validated history — don't rewrite merged commits.
+- One conventional commit per issue (see git history), including the `Co-authored-by: Copilot` trailer.
+
 
