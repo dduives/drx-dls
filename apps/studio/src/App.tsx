@@ -49,7 +49,7 @@ function App() {
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}
           {...(device !== "web" ? { "data-device": device } : {})}
-          className={`flex-1 overflow-y-auto p-6 ${resolvedDark ? "wa-dark" : "wa-light"}`}
+          className={`flex-1 overflow-y-auto bg-[var(--wa-color-surface-default)] p-6 text-[var(--wa-color-text-normal)] ${resolvedDark ? "wa-dark" : "wa-light"}`}
         >
           {/* This <main> IS the preview pane + theme scope root. DRI-54's
               platform toggle sets data-device="ios"|"tvos" on this same
@@ -66,14 +66,14 @@ function App() {
               scoped palette/scale overrides — makes WA recompute the whole
               derived layer from the live-edited inputs, so color and scale
               changes reflect instantly. */}
-          <p className="mb-6 text-sm text-neutral-400">
+          <p className="mb-6 text-sm text-[var(--wa-color-text-quiet)]">
             Previewing &ldquo;{identity.fontFamily.body.split(",")[0]}&rdquo; —
             brand base {identity.variants.brand}
           </p>
           <DeviceFrame device={device}>
             <Suspense
               fallback={
-                <p className="text-sm text-neutral-400">Loading preview…</p>
+                <p className="text-sm text-[var(--wa-color-text-quiet)]">Loading preview…</p>
               }
             >
               <Gallery />
