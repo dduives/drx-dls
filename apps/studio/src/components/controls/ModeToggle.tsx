@@ -1,22 +1,18 @@
-import { useState } from "react";
 import type { ColorScheme } from "@drx-dls/webawesome";
-import { getColorScheme, setColorScheme } from "@drx-dls/webawesome/theme";
+import { useColorScheme } from "../../state/useColorScheme.ts";
 
 const MODES: ColorScheme[] = ["light", "dark", "auto"];
 
 /**
- * Preview-only light/dark/auto toggle. Delegates to `setColorScheme` from
- * @drx-dls/webawesome (toggles `.wa-dark`/`.wa-light` on <html>). Mode is NOT
- * part of Identity — the palette is mode-independent — so it's tracked in
- * local state only, seeded from the current scheme.
+ * Preview-only light/dark/auto toggle. Writes to the shared
+ * `ColorSchemeProvider` (DRI-91), which keeps WebAwesome's `<html>` class in
+ * sync and exposes the resolved scheme so `App` can stamp `.wa-light`/`.wa-dark`
+ * onto the preview root (making WA recompute its derived tokens from the scoped
+ * preview inputs). Mode is NOT part of Identity — the palette is
+ * mode-independent.
  */
 export function ModeToggle() {
-  const [mode, setMode] = useState<ColorScheme>(() => getColorScheme());
-
-  const select = (next: ColorScheme) => {
-    setColorScheme(next);
-    setMode(next);
-  };
+  const { scheme, setScheme } = useColorScheme();
 
   return (
     <div
@@ -28,10 +24,10 @@ export function ModeToggle() {
         <button
           key={m}
           type="button"
-          onClick={() => select(m)}
+          onClick={() => setScheme(m)}
           className={
             "px-2 py-1 capitalize " +
-            (mode === m
+            (scheme === m
               ? "bg-neutral-800 text-white"
               : "bg-white text-neutral-600 hover:bg-neutral-100")
           }

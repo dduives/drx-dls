@@ -10,6 +10,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { ProjectsProvider } from "./state/ProjectsProvider.tsx";
 import { DeviceProvider } from "./state/DeviceProvider.tsx";
+import { ColorSchemeProvider } from "./state/ColorSchemeProvider.tsx";
 
 // WebAwesome custom elements are registered lazily inside the gallery chunk
 // (see components/gallery/GalleryLazy.tsx) so their weight stays out of the
@@ -19,7 +20,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ProjectsProvider>
       <DeviceProvider>
-        <App />
+        <ColorSchemeProvider>
+          <App />
+        </ColorSchemeProvider>
       </DeviceProvider>
     </ProjectsProvider>
   </StrictMode>,

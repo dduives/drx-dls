@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
 import { useDevice } from "./state/useDevice.ts";
+import { useColorScheme } from "./state/useColorScheme.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
 import { ExportControls } from "./components/ExportControls.tsx";
@@ -23,6 +24,7 @@ const Gallery = lazy(() => import("./components/gallery/GalleryLazy.tsx"));
 function App() {
   const { identity } = useThemeInputs();
   const { device } = useDevice();
+  const { resolvedDark } = useColorScheme();
 
   // Live preview (DRI-52): inject the scoped --wa-* theme, keyed on identity.
   usePreviewTheme(identity);
@@ -47,7 +49,7 @@ function App() {
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}
           {...(device !== "web" ? { "data-device": device } : {})}
-          className="flex-1 overflow-y-auto p-6"
+          className={`flex-1 overflow-y-auto p-6 ${resolvedDark ? "wa-dark" : "wa-light"}`}
         >
           {/* This <main> IS the preview pane + theme scope root. DRI-54's
               platform toggle sets data-device="ios"|"tvos" on this same
@@ -55,7 +57,15 @@ function App() {
               [data-device="web"] block — web scales live in the scoped :root —
               so the attribute is set only for ios/tvos). The gallery MUST live
               inside it so the real <wa-*> components inherit the scoped --wa-*
-              vars (CSS custom properties pierce shadow DOM). */}
+              vars (CSS custom properties pierce shadow DOM).
+
+              The wa-light/wa-dark class (DRI-91) is critical: WebAwesome
+              declares its semantic role tokens and scale-derived tokens on the
+              element carrying that class, resolving var()/calc() against that
+              element's inputs. Placing it here — on the same element as the
+              scoped palette/scale overrides — makes WA recompute the whole
+              derived layer from the live-edited inputs, so color and scale
+              changes reflect instantly. */}
           <p className="mb-6 text-sm text-neutral-400">
             Previewing &ldquo;{identity.fontFamily.body.split(",")[0]}&rdquo; —
             brand base {identity.variants.brand}
