@@ -18,12 +18,12 @@ export function ControlPanel() {
   return (
     <div className="space-y-5">
       <VariantColorControls />
-      <ContrastWarnings />
       <ScaleControls />
       <TypographyControls />
       <FontFacesEditor />
       <FormControlControls />
       <ComponentColorControls />
+      <ContrastWarnings />
       <button
         type="button"
         onClick={reset}
