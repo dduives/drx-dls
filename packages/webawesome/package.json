@@ -1,6 +1,6 @@
 {
   "name": "@drx-dls/webawesome",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "WebAwesome integration for the DRX design system — themed via @drx-dls/tokens",
   "license": "MIT",
   "type": "module",
