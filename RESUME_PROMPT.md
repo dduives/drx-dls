@@ -18,52 +18,39 @@ issue description (each starts with a `Key:` slug), validate (typecheck/build/te
 then move it to **Done** and post an end-report comment. Ask me before any
 product/design decision not already covered in the issue.
 
-**Two candidate milestones are open — confirm order with me first:**
-- **M7 · Studio UX & Fixes** (all `Todo`, ready) — bugs/UX found while testing the
-  live Studio app. Likely takes priority since it fixes the tool we're actively using.
-- **M6 · Component Coverage** (all `Backlog`) — register/theme more WA components
-  for driesflix. Promote to `Todo` when picked up.
-
-**M7 suggested order (by impact):** **DRI-91** (live preview not reflecting
-scale/color — core bug) → **DRI-93** (dark mode whole page) → **DRI-94** (dark
-form-control label contrast) → **DRI-97** (save affordance) → **DRI-95** (font
-dropdown) + **DRI-92** (custom-font add button) → **DRI-99** (numbered palette
-ramp — research already attached to the issue) → **DRI-96** (form-control
-sliders) → **DRI-98** (contrast-warning placement). DRI-99 and DRI-82 each want a
-design decision confirmed before building.
+**Next up: M6 · Component Coverage** (all `Backlog` — promote to `Todo` when picked
+up). M7 · Studio UX & Fixes is **done** (see status below). Confirm with me before
+starting if priorities may have shifted.
 
 **M6 order:** **DRI-81** first (no decision), then **DRI-82** (build-vs-adopt
 toast decision needed before code).
 
 ---
 
-## Current status (2026-07-10)
+## Current status (2026-07-14)
 
 - **Done + merged to `main`:** M1 · Tokens Engine ✅, M2 · WebAwesome ✅,
-  M3 · Studio Foundation ✅, M4 · Studio Editor ✅, **M5 · Studio Polish ✅**.
-  M5 (DRI-64 tests, 67 device-persist, 68 code-splitting, 65 README) + M3's
-  DRI-56 (CI/root-script wiring, studio kept out of releases) shipped via
-  **PR #1** (merge commit on `main`); the `feat/m5-studio-polish` branch is deleted.
+  M3 · Studio Foundation ✅, M4 · Studio Editor ✅, M5 · Studio Polish ✅ (PR #1).
+- **M7 · Studio UX & Fixes ✅ DONE** — all 9 issues complete on branch
+  `feat/m7-studio-ux-fixes`, open in **PR #2** (awaiting review/merge to `main`):
+  - DRI-91 (live preview reflects scale+color), DRI-93 (dark-mode surface),
+    DRI-94 (dark form-control label contrast) — the live-preview fixes.
+  - DRI-99 (numbered palette ramp) + DRI-100 (per-component bg overrides).
+  - DRI-92 (explicit Add-font button), DRI-95 (font-family dropdown),
+    DRI-97 (autosave indicator), DRI-96 (form-control sliders),
+    DRI-98 (collapsible contrast-warning badge).
+  - Validated repo-wide: typecheck ✅ · build ✅ · tests ✅ (studio 43/43 + tokens) ·
+    oxlint ✅. Each issue has a Done end-report comment. No changesets (studio private).
+  - **Action on resume:** review + merge PR #2 (merge commit, then delete branch)
+    before starting M6.
 - **Release state:** `changeset status` bumps only `@drx-dls/tokens` +
-  `@drx-dls/webawesome` (studio is `private`, guarded by
-  `privatePackages: { version:false, tag:false }`). No "Version Packages" PR run yet.
+  `@drx-dls/webawesome` (studio is `private`). No "Version Packages" PR run yet.
+- **Flagged follow-up** (`agent:tokens-engineer`): `formControl.borderColor` default
+  is pinned to `neutral-70` and doesn't invert for dark mode — not yet ticketed.
 
-## M7 · Studio UX & Fixes (from hands-on Studio testing 2026-07-10 — all Todo)
+## M7 · Studio UX & Fixes — ✅ COMPLETE (branch `feat/m7-studio-ux-fixes`, PR #2)
 
-- **DRI-91** (High) — live preview must reflect **scale + color** changes on the fly
-  (core bug; suspected `:root`-derived tokens not recomputed under the `[data-drx-preview]` scope).
-- **DRI-93** (High) — dark mode should darken the **whole page**, not just WA components
-  (`ModeToggle` toggles `.wa-dark` on `<html>`; Studio chrome uses hardcoded Tailwind neutrals).
-- **DRI-94** (Med) — dark mode: **form-control labels too dark** (low contrast).
-- **DRI-97** (Med) — **save affordance / make autosave obvious** (Studio autosaves to
-  localStorage; users expected a Save button).
-- **DRI-95** (Med) — **font selection via dropdown** with defaults incl. Inter (currently free-text).
-- **DRI-92** (Med) — **custom-font editor needs an explicit Add/Save button**.
-- **DRI-99** (Med) — **numbered palette ramp** color model (show full `95…05` ramp,
-  keep OKLCH, per-step override escape hatch). Industry research + comparison + citations
-  are in the issue description + a comment. Confirm per-step-override vs generation-knobs decision.
-- **DRI-96** (Low) — **form-control numeric tokens as sliders** (match ScaleControls UX).
-- **DRI-98** (Low) — **relocate contrast warnings** to a less intrusive spot (logic unchanged).
+All issues Done. Kept here for reference; nothing to pick up.
 
 ## M6 · Component Coverage (next — all Backlog, source: driesflix gap analysis DRI-70)
 
@@ -107,7 +94,7 @@ toast decision needed before code).
 - **Load MCP first.** MCP servers are read at startup — run `/mcp` after `/clear`
   to confirm the `linear` server is connected. If not, the raw Linear GraphQL API
   with the configured key also works.
-- **Domain switch:** M5 was `studio-web`; M6 is `webawesome`. This is a clean
+- **Domain switch:** M7 was `studio-web`; M6 is `webawesome`. This is a clean
   `/clear` boundary — Linear + `CLAUDE.md` rehydrate the context.
 - **Project:** https://linear.app/driesdriesdries/project/drx-dls-eba129fb58c2
 - No need to re-paste the plan — it lives in the Linear issues and `CLAUDE.md`.
