@@ -33,7 +33,7 @@ export function DeviceFrame({
     return (
       <div className="flex flex-col items-center">
         {disclaimer}
-        <div className="w-full max-w-[420px] rounded-[2.5rem] border-[10px] border-neutral-800 bg-white p-4 shadow-xl">
+        <div className="w-full max-w-[420px] rounded-[2.5rem] border-[10px] border-neutral-800 bg-[var(--wa-color-surface-default)] p-4 shadow-xl">
           <div className="mx-auto mb-3 h-1.5 w-16 rounded-full bg-neutral-300" />
           {children}
         </div>
@@ -48,7 +48,7 @@ export function DeviceFrame({
       <div className="w-full max-w-[1100px] rounded-2xl border-[12px] border-neutral-900 bg-neutral-950 p-6 shadow-2xl">
         {/* Simulated tvOS focus engine: a glowing focus ring on the focused
             representative element (CSS only, approximate). */}
-        <div className="rounded-xl bg-white p-6 text-[112.5%] outline outline-4 outline-offset-4 outline-sky-400 ring-4 ring-sky-300/50 [box-shadow:0_0_0_6px_rgba(56,189,248,0.35),0_12px_40px_rgba(56,189,248,0.45)]">
+        <div className="rounded-xl bg-[var(--wa-color-surface-default)] p-6 text-[112.5%] outline outline-4 outline-offset-4 outline-sky-400 ring-4 ring-sky-300/50 [box-shadow:0_0_0_6px_rgba(56,189,248,0.35),0_12px_40px_rgba(56,189,248,0.45)]">
           {children}
         </div>
       </div>

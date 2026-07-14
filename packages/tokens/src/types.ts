@@ -33,6 +33,32 @@ export interface FormControlTokens {
 }
 
 /**
+ * Per-component-family background overrides (DRI-100). An optional layer on top
+ * of the palette: when set, they steer the fill of a specific WebAwesome
+ * component family independently of the global semantic mapping. Each value is
+ * a raw hex (`#rrggbb`) or a variant-tint reference (`neutral-70`) — the same
+ * encoding as `FormControlTokens.borderColor`. Omit a field to keep
+ * WebAwesome's default (per-variant `fill-loud` for badges, surface for form
+ * controls).
+ */
+export interface ComponentColorTokens {
+  /** Overrides `wa-badge` background (WA default: `--wa-color-{variant}-fill-loud`). */
+  badgeBackground?: string;
+  /** Overrides `--wa-form-control-background-color` (WA default: surface). */
+  formControlBackground?: string;
+}
+
+/**
+ * Optional per-step palette pins (DRI-99). Advanced escape hatch: pin a specific
+ * variant tint to an exact hex, overriding the OKLCH-derived value for that one
+ * step. Keyed by variant, then by tint step number (as it appears in `tints`,
+ * e.g. `40`). Unpinned steps keep the generated ramp value.
+ */
+export type PaletteOverrides = Partial<
+  Record<VariantName, Record<number, string>>
+>;
+
+/**
  * A single custom web font to load via a CSS `@font-face` rule (web only).
  * `family` is the name apps reference from `fontFamily.{body,heading,code}`.
  */
@@ -69,6 +95,17 @@ export interface Identity extends ScaleKnobs {
   /** Form-control component-group overrides (--wa-form-control-*). */
   formControl: FormControlTokens;
   /**
+   * Optional per-component background overrides (badges, form controls).
+   * Always present after `resolveIdentity` (defaults to `{}`); each field is
+   * itself optional and only emitted when set.
+   */
+  components: ComponentColorTokens;
+  /**
+   * Optional per-step palette pins. Always present after `resolveIdentity`
+   * (defaults to `{}`). Pinned steps override the OKLCH-derived tint hex.
+   */
+  paletteOverrides: PaletteOverrides;
+  /**
    * Fully resolved per-device scale multipliers, always present after
    * `resolveIdentity`. Base structure (`base.tokens.json` `devices`) deep-merged
    * with any per-app `ThemeInputs.devices` overrides (per device, per knob).
@@ -94,13 +131,18 @@ export interface BaseTokens {
 
 /** A partial identity override, as loaded from a per-app `drx.theme.json`. */
 export type ThemeInputs = Partial<
-  Omit<Identity, "variants" | "fontFamily" | "formControl" | "devices">
+  Omit<
+    Identity,
+    "variants" | "fontFamily" | "formControl" | "components" | "devices"
+  >
 > & {
   /** Schema version this file targets (see `base.tokens.json` `version`). */
   version?: number;
   variants?: Partial<Record<VariantName, string>>;
   fontFamily?: Partial<Identity["fontFamily"]>;
   formControl?: Partial<FormControlTokens>;
+  /** Per-component background overrides (badges, form controls). */
+  components?: Partial<ComponentColorTokens>;
   /**
    * Per-app overrides of the device scale multipliers. Shared palette/typography
    * across devices; only component sizes (scale knobs) vary per device. Merged

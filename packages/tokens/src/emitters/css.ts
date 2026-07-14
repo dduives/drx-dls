@@ -58,7 +58,7 @@ function fontVars(theme: ResolvedTheme): string[] {
 
 function formControlVars(theme: ResolvedTheme): string[] {
   const fc = theme.identity.formControl;
-  return [
+  const vars = [
     `  --wa-form-control-padding-block: ${fc.paddingBlock};`,
     `  --wa-form-control-padding-inline: ${fc.paddingInline};`,
     `  --wa-form-control-border-color: ${resolveColorRef(fc.borderColor, theme).css};`,
@@ -66,6 +66,32 @@ function formControlVars(theme: ResolvedTheme): string[] {
     `  --wa-form-control-border-style: ${fc.borderStyle};`,
     `  --wa-form-control-border-radius: ${fc.borderRadius};`,
   ];
+  // DRI-100: optional form-control background override. Only emitted when set,
+  // so the WebAwesome default (surface) is untouched otherwise.
+  const bg = theme.identity.components.formControlBackground;
+  if (bg) {
+    vars.push(
+      `  --wa-form-control-background-color: ${resolveColorRef(bg, theme).css};`,
+    );
+  }
+  return vars;
+}
+
+/**
+ * DRI-100: per-component-family background overrides that can't be expressed as
+ * an inherited `--wa-*` custom property. `wa-badge`'s background lives on its
+ * shadow `:host`; an outer author rule targeting the element overrides it. Only
+ * emitted when set. Each entry is a full, top-level CSS rule string.
+ */
+function componentRules(theme: ResolvedTheme): string[] {
+  const rules: string[] = [];
+  const badgeBg = theme.identity.components.badgeBackground;
+  if (badgeBg) {
+    rules.push(
+      `wa-badge {\n  background-color: ${resolveColorRef(badgeBg, theme).css};\n  border-color: transparent;\n}`,
+    );
+  }
+  return rules;
 }
 
 function scaleVars(theme: ResolvedTheme, device: DeviceName): string[] {
@@ -126,6 +152,10 @@ export function emitCss(
       );
     }
   }
+
+  // Component-family override rules (e.g. wa-badge background) — top-level
+  // element rules, emitted after the token blocks.
+  blocks.push(...componentRules(theme));
 
   return blocks.join("\n\n") + "\n";
 }

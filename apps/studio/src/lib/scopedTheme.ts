@@ -22,9 +22,12 @@ export const PREVIEW_STYLE_ID = "drx-preview-theme";
  *     (`${scope}[data-device="ios"] { … }`).
  *
  * `@font-face` rules are left untouched — they must stay at the top level
- * (`@font-face` cannot be nested under a selector). The transform is a targeted
- * replace keyed on the exact block-start prefixes `emitCss` produces; those
- * prefixes only occur at block starts in the generated output, so this is safe.
+ * (`@font-face` cannot be nested under a selector). Component-family override
+ * rules that `emitCss` emits as bare element selectors (e.g. `wa-badge { … }`)
+ * are prefixed with `${scope}` so they only affect components inside the
+ * preview. The transform is a targeted replace keyed on the exact block-start
+ * prefixes `emitCss` produces; those prefixes only occur at block starts in the
+ * generated output, so this is safe.
  */
 export function scopeThemeCss(css: string, scopeSelector: string): string {
   return css
@@ -32,7 +35,8 @@ export function scopeThemeCss(css: string, scopeSelector: string): string {
     .replace(
       /^\[data-device="(ios|tvos)"\] \{/gm,
       `${scopeSelector}[data-device="$1"] {`,
-    );
+    )
+    .replace(/^(wa-[a-z-]+) \{/gm, `${scopeSelector} $1 {`);
 }
 
 /**

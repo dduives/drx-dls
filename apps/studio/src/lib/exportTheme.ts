@@ -49,6 +49,10 @@ export function buildThemeJson(identity: Identity): string {
     fontFamily: identity.fontFamily,
     fontFaces,
     formControl: identity.formControl,
+    // DRI-100 / DRI-99: optional override layers. Always present on `Identity`
+    // (default `{}`); exported as-is so the file round-trips.
+    components: identity.components,
+    paletteOverrides: identity.paletteOverrides,
     // Per-device scale multipliers (DRI-54/DRI-66). `Identity.devices` is fully
     // resolved (web/ios/tvos always present); exporting the whole map keeps the
     // file inputs-only and re-importable — `validateThemeInputs` accepts a

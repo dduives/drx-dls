@@ -44,6 +44,20 @@ describe("scopeThemeCss", () => {
     expect(scoped).not.toContain(`${SCOPE} @font-face`);
     expect(scoped).toMatch(/^@font-face \{/m);
   });
+
+  it("prefixes component element rules (wa-badge) with the scope", () => {
+    const raw = emitCss(
+      generateTheme(
+        resolveIdentity({ components: { badgeBackground: "brand-40" } }),
+      ),
+    );
+    // Sanity: the CLI output is a bare, global element rule.
+    expect(raw).toMatch(/^wa-badge \{/m);
+    const scoped = scopeThemeCss(raw, SCOPE);
+    expect(scoped).toContain(`${SCOPE} wa-badge {`);
+    // The unscoped, global element rule must be gone.
+    expect(scoped).not.toMatch(/^wa-badge \{/m);
+  });
 });
 
 describe("buildScopedThemeCss", () => {

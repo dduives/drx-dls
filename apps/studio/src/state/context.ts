@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import type {
+  ComponentColorTokens,
   DeviceName,
   FontFace,
   FormControlTokens,
@@ -29,6 +30,19 @@ export interface ThemeInputsContextValue {
   setFontFamily: (kind: keyof Identity["fontFamily"], value: string) => void;
   /** Patch the form-control token group (immutable merge over prev.formControl). */
   setFormControl: (patch: Partial<FormControlTokens>) => void;
+  /**
+   * Patch the per-component background override layer (DRI-100). Immutable merge
+   * over `prev.components`. Pass an empty string / omit to leave a field
+   * unchanged; use `null`-like clearing via `setComponentColor({ badgeBackground: undefined })`.
+   */
+  setComponentColor: (patch: Partial<ComponentColorTokens>) => void;
+  /**
+   * Pin a single palette step to an exact hex (DRI-99), overriding the derived
+   * ramp value for `variant` at `tint`.
+   */
+  setPaletteOverride: (variant: VariantName, tint: number, hex: string) => void;
+  /** Remove a pinned palette step, restoring the OKLCH-derived value. */
+  clearPaletteOverride: (variant: VariantName, tint: number) => void;
   /**
    * Patch the per-device scale multipliers for one device (immutable merge over
    * `prev.devices[device]`). Colors/typography/form-control stay shared across

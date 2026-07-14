@@ -5,6 +5,7 @@ import { VariantColorControls } from "./VariantColorControls.tsx";
 import { ScaleControls } from "./ScaleControls.tsx";
 import { TypographyControls } from "./TypographyControls.tsx";
 import { FormControlControls } from "./FormControlControls.tsx";
+import { ComponentColorControls } from "./ComponentColorControls.tsx";
 
 /**
  * Left-panel control surface. Every control reads its value from `identity`
@@ -17,11 +18,12 @@ export function ControlPanel() {
   return (
     <div className="space-y-5">
       <VariantColorControls />
-      <ContrastWarnings />
       <ScaleControls />
       <TypographyControls />
       <FontFacesEditor />
       <FormControlControls />
+      <ComponentColorControls />
+      <ContrastWarnings />
       <button
         type="button"
         onClick={reset}

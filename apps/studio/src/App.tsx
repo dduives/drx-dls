@@ -8,8 +8,10 @@ import { lazy, Suspense } from "react";
 import { useThemeInputs } from "./state/useThemeInputs.ts";
 import { usePreviewTheme } from "./state/usePreviewTheme.ts";
 import { useDevice } from "./state/useDevice.ts";
+import { useColorScheme } from "./state/useColorScheme.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
+import { SaveStatus } from "./components/SaveStatus.tsx";
 import { ExportControls } from "./components/ExportControls.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
@@ -23,6 +25,7 @@ const Gallery = lazy(() => import("./components/gallery/GalleryLazy.tsx"));
 function App() {
   const { identity } = useThemeInputs();
   const { device } = useDevice();
+  const { resolvedDark } = useColorScheme();
 
   // Live preview (DRI-52): inject the scoped --wa-* theme, keyed on identity.
   usePreviewTheme(identity);
@@ -33,6 +36,7 @@ function App() {
         <div className="flex items-center gap-3">
           <span className="font-semibold">Theme Studio</span>
           <ProjectSwitcher />
+          <SaveStatus />
         </div>
         <span className="flex items-center gap-3 text-sm text-neutral-500">
           <PlatformToggle />
@@ -47,7 +51,7 @@ function App() {
         <main
           {...{ [PREVIEW_SCOPE_ATTR]: "" }}
           {...(device !== "web" ? { "data-device": device } : {})}
-          className="flex-1 overflow-y-auto p-6"
+          className={`flex-1 overflow-y-auto bg-[var(--wa-color-surface-default)] p-6 text-[var(--wa-color-text-normal)] ${resolvedDark ? "wa-dark" : "wa-light"}`}
         >
           {/* This <main> IS the preview pane + theme scope root. DRI-54's
               platform toggle sets data-device="ios"|"tvos" on this same
@@ -55,15 +59,23 @@ function App() {
               [data-device="web"] block — web scales live in the scoped :root —
               so the attribute is set only for ios/tvos). The gallery MUST live
               inside it so the real <wa-*> components inherit the scoped --wa-*
-              vars (CSS custom properties pierce shadow DOM). */}
-          <p className="mb-6 text-sm text-neutral-400">
+              vars (CSS custom properties pierce shadow DOM).
+
+              The wa-light/wa-dark class (DRI-91) is critical: WebAwesome
+              declares its semantic role tokens and scale-derived tokens on the
+              element carrying that class, resolving var()/calc() against that
+              element's inputs. Placing it here — on the same element as the
+              scoped palette/scale overrides — makes WA recompute the whole
+              derived layer from the live-edited inputs, so color and scale
+              changes reflect instantly. */}
+          <p className="mb-6 text-sm text-[var(--wa-color-text-quiet)]">
             Previewing &ldquo;{identity.fontFamily.body.split(",")[0]}&rdquo; —
             brand base {identity.variants.brand}
           </p>
           <DeviceFrame device={device}>
             <Suspense
               fallback={
-                <p className="text-sm text-neutral-400">Loading preview…</p>
+                <p className="text-sm text-[var(--wa-color-text-quiet)]">Loading preview…</p>
               }
             >
               <Gallery />

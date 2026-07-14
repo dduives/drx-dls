@@ -47,6 +47,8 @@ export function resolveIdentity(inputs: ThemeInputs = {}): Identity {
     fontFamily: { ...base.fontFamily, ...(inputs.fontFamily ?? {}) },
     fontFaces: inputs.fontFaces ?? base.fontFaces ?? [],
     formControl: { ...base.formControl, ...(inputs.formControl ?? {}) },
+    components: { ...base.components, ...(inputs.components ?? {}) },
+    paletteOverrides: inputs.paletteOverrides ?? base.paletteOverrides ?? {},
     devices: resolveDevices(inputs),
   };
 }
@@ -62,7 +64,11 @@ export function generateTheme(inputs: ThemeInputs = {}): ResolvedTheme {
   const palette = Object.fromEntries(
     VARIANTS.map((variant): [VariantName, TintScale[]] => [
       variant,
-      deriveScale(identity.variants[variant], BASE.tints),
+      deriveScale(
+        identity.variants[variant],
+        BASE.tints,
+        identity.paletteOverrides[variant] ?? {},
+      ),
     ]),
   ) as Record<VariantName, TintScale[]>;
 

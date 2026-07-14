@@ -65,14 +65,37 @@ function fontsEnum(theme: ResolvedTheme): string {
 function formControlEnum(theme: ResolvedTheme): string {
   const fc = theme.identity.formControl;
   const border = resolveColorRef(fc.borderColor, theme);
-  return `public enum DRXFormControl {
-    public static let paddingBlock = "${fc.paddingBlock}"
-    public static let paddingInline = "${fc.paddingInline}"
-    public static let borderColor = Color(drxHex: "${border.hex}")
-    public static let borderWidth = "${fc.borderWidth}"
-    public static let borderStyle = "${fc.borderStyle}"
-    public static let borderRadius = "${fc.borderRadius}"
-}`;
+  const comp = theme.identity.components;
+  const lines = [
+    `    public static let paddingBlock = "${fc.paddingBlock}"`,
+    `    public static let paddingInline = "${fc.paddingInline}"`,
+    `    public static let borderColor = Color(drxHex: "${border.hex}")`,
+    `    public static let borderWidth = "${fc.borderWidth}"`,
+    `    public static let borderStyle = "${fc.borderStyle}"`,
+    `    public static let borderRadius = "${fc.borderRadius}"`,
+  ];
+  // DRI-100: optional background override, only emitted when set.
+  if (comp.formControlBackground) {
+    const bg = resolveColorRef(comp.formControlBackground, theme);
+    lines.push(`    public static let background = Color(drxHex: "${bg.hex}")`);
+  }
+  return `public enum DRXFormControl {\n${lines.join("\n")}\n}`;
+}
+
+/**
+ * DRI-100: per-component background overrides. Emitted only for families with a
+ * set override, so native consumers can mirror the web preview.
+ */
+function componentsEnum(theme: ResolvedTheme): string {
+  const comp = theme.identity.components;
+  const lines: string[] = [];
+  if (comp.badgeBackground) {
+    const bg = resolveColorRef(comp.badgeBackground, theme);
+    lines.push(
+      `    public static let badgeBackground = Color(drxHex: "${bg.hex}")`,
+    );
+  }
+  return `public enum DRXComponents {\n${lines.join("\n")}\n}`;
 }
 
 /** Emit DRXTheme.swift: variant palette + per-device scale knobs. */
@@ -82,6 +105,7 @@ export function emitSwift(theme: ResolvedTheme): string {
     paletteEnum(theme),
     fontsEnum(theme),
     formControlEnum(theme),
+    componentsEnum(theme),
     scalesEnum(theme, "web"),
     scalesEnum(theme, "ios"),
     scalesEnum(theme, "tvos"),
