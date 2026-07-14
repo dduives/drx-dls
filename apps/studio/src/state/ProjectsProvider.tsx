@@ -10,7 +10,7 @@ import { resolveIdentity } from "@drx-dls/tokens";
 import type { Identity } from "@drx-dls/tokens";
 import { useThemeInputs } from "./useThemeInputs";
 import { ThemeInputsProvider } from "./ThemeInputsProvider";
-import { ProjectsContext, type ProjectsContextValue, type Project } from "./projectsContext";
+import { ProjectsContext, type ProjectsContextValue, type Project, type SaveStatus } from "./projectsContext";
 import {
   ACTIVE_PROJECT_ID_KEY,
   PROJECTS_KEY,
@@ -90,9 +90,27 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
   // Bumped to force the editor to re-seed from the active project's inputs.
   const [seedKey, setSeedKey] = useState(0);
 
+  // Autosave indicator state. `writeJson` is synchronous, so we surface a brief
+  // "Saving…" phase after each change that settles to "All changes saved" once
+  // edits pause — giving users clear feedback that their work is persisted.
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const skipFirstPersist = useRef(true);
+
   // Persist projects + active id whenever they change.
   useEffect(() => {
     writeJson(PROJECTS_KEY, projects);
+    // Don't flash "Saving…" for the initial hydrate-and-write on mount.
+    if (skipFirstPersist.current) {
+      skipFirstPersist.current = false;
+      return;
+    }
+    setSaveStatus("saving");
+    const t = setTimeout(() => {
+      setSaveStatus("saved");
+      setLastSavedAt(Date.now());
+    }, 500);
+    return () => clearTimeout(t);
   }, [projects]);
   useEffect(() => {
     writeString(ACTIVE_PROJECT_ID_KEY, activeProjectId);
@@ -191,6 +209,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       projects,
       activeProjectId,
       activeProject,
+      saveStatus,
+      lastSavedAt,
       selectProject,
       createProject,
       duplicateProject,
@@ -202,6 +222,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       projects,
       activeProjectId,
       activeProject,
+      saveStatus,
+      lastSavedAt,
       selectProject,
       createProject,
       duplicateProject,

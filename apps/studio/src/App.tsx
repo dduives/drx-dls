@@ -11,6 +11,7 @@ import { useDevice } from "./state/useDevice.ts";
 import { useColorScheme } from "./state/useColorScheme.ts";
 import { PREVIEW_SCOPE_ATTR } from "./lib/scopedTheme.ts";
 import { ProjectSwitcher } from "./components/ProjectSwitcher.tsx";
+import { SaveStatus } from "./components/SaveStatus.tsx";
 import { ExportControls } from "./components/ExportControls.tsx";
 import { ControlPanel } from "./components/controls/ControlPanel.tsx";
 import { ModeToggle } from "./components/controls/ModeToggle.tsx";
@@ -35,6 +36,7 @@ function App() {
         <div className="flex items-center gap-3">
           <span className="font-semibold">Theme Studio</span>
           <ProjectSwitcher />
+          <SaveStatus />
         </div>
         <span className="flex items-center gap-3 text-sm text-neutral-500">
           <PlatformToggle />

@@ -14,10 +14,22 @@ export interface Project {
   updatedAt: number;
 }
 
+/**
+ * Autosave lifecycle for the "All changes saved" indicator. Studio persists
+ * every edit to localStorage; `"saving"` is shown briefly after a change and
+ * settles back to `"saved"` once writes pause.
+ */
+export type SaveStatus = "saved" | "saving";
+
 export interface ProjectsContextValue {
   projects: Project[];
   activeProjectId: string;
   activeProject: Project;
+
+  /** Autosave status for the top-bar indicator. */
+  saveStatus: SaveStatus;
+  /** Epoch ms of the last successful persist, or null before the first save. */
+  lastSavedAt: number | null;
 
   /** Make an existing project active (loads its inputs into the editor). */
   selectProject: (id: string) => void;
