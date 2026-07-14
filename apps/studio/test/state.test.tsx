@@ -199,3 +199,36 @@ describe("import guard (point 7 at the state level)", () => {
     expect(result.current.theme.identity.variants.brand).toBe("#ff0000");
   });
 });
+
+describe("palette overrides + component colors (DRI-99 / DRI-100)", () => {
+  it("pins and clears a single palette step", () => {
+    const { result } = render();
+    act(() => {
+      result.current.theme.setPaletteOverride("brand", 40, "#abcdef");
+    });
+    expect(result.current.theme.identity.paletteOverrides.brand?.[40]).toBe(
+      "#abcdef",
+    );
+    act(() => {
+      result.current.theme.clearPaletteOverride("brand", 40);
+    });
+    expect(result.current.theme.identity.paletteOverrides.brand).toBeUndefined();
+  });
+
+  it("sets and clears a component background override", () => {
+    const { result } = render();
+    act(() => {
+      result.current.theme.setComponentColor({ badgeBackground: "brand-40" });
+    });
+    expect(result.current.theme.identity.components.badgeBackground).toBe(
+      "brand-40",
+    );
+    act(() => {
+      result.current.theme.setComponentColor({ badgeBackground: undefined });
+    });
+    expect(
+      result.current.theme.identity.components.badgeBackground,
+    ).toBeUndefined();
+  });
+});
+

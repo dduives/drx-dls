@@ -5,6 +5,7 @@ import { VariantColorControls } from "./VariantColorControls.tsx";
 import { ScaleControls } from "./ScaleControls.tsx";
 import { TypographyControls } from "./TypographyControls.tsx";
 import { FormControlControls } from "./FormControlControls.tsx";
+import { ComponentColorControls } from "./ComponentColorControls.tsx";
 
 /**
  * Left-panel control surface. Every control reads its value from `identity`
@@ -22,6 +23,7 @@ export function ControlPanel() {
       <TypographyControls />
       <FontFacesEditor />
       <FormControlControls />
+      <ComponentColorControls />
       <button
         type="button"
         onClick={reset}

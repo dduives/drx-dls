@@ -52,12 +52,21 @@ function lookup(map: Record<number, number>, tint: number): number {
   return map[lo]! + t * (map[hi]! - map[lo]!);
 }
 
-export function deriveScale(base: string, tints: number[]): TintScale[] {
+export function deriveScale(
+  base: string,
+  tints: number[],
+  overrides: Record<number, string> = {},
+): TintScale[] {
   const oklch = new Color(base).to("oklch");
   const baseC = oklch.coords[1] || 0;
   const baseH = Number.isNaN(oklch.coords[2]) ? 0 : oklch.coords[2];
 
   return tints.map((tint) => {
+    // A pinned step (DRI-99) wins over the OKLCH-derived value.
+    const pinned = overrides[tint];
+    if (typeof pinned === "string" && pinned.length > 0) {
+      return { tint, hex: pinned };
+    }
     const L = lookup(L_BY_TINT, tint);
     const C = baseC * lookup(C_BY_TINT, tint);
     const color = new Color("oklch", [L, C, baseH]);

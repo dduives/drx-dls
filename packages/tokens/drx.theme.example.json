@@ -41,6 +41,12 @@
     "borderStyle": "solid",
     "borderRadius": "0.375rem"
   },
+  "components": {
+    "$comment": "OPTIONAL per-component background overrides. Omit a field to keep WebAwesome's default. Values are a hex or variant-tint ref like 'brand-40'. badgeBackground overrides wa-badge fill; formControlBackground sets --wa-form-control-background-color."
+  },
+  "paletteOverrides": {
+    "$comment": "OPTIONAL per-step palette pins. Pin a variant tint to an exact hex, overriding the OKLCH-derived value for that one step. Shape: { \"brand\": { \"40\": \"#abcdef\" } }. Omit for a fully generated ramp."
+  },
   "devices": {
     "$comment": "Per-device scale overrides. The palette and typography identity above is SHARED across all devices — only component sizes (scale knobs) differ per platform. These multiply the base device layer (tvOS = 10-foot, iOS = touch). Missing knobs fall back to the base device value. Use `drx-theme build --device ios|tvos` to export a standalone self-contained theme.<device>.css for a separate app repo.",
     "ios": {

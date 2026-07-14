@@ -64,6 +64,8 @@ const FORM_CONTROL_KEYS = [
   "borderRadius",
 ] as const;
 
+const COMPONENT_COLOR_KEYS = ["badgeBackground", "formControlBackground"] as const;
+
 /** Ignored metadata keys allowed anywhere (JSON authoring aids). */
 function isMetaKey(key: string): boolean {
   return key === "$schema" || key === "$comment" || key.startsWith("$");
@@ -173,6 +175,66 @@ function validateFields(
             path: `formControl.${key}`,
             message: "must be a string",
           });
+        }
+      }
+    }
+  }
+
+  const { components } = json;
+  if (components !== undefined) {
+    if (!isPlainObject(components)) {
+      errors.push({ path: "components", message: "must be an object" });
+    } else {
+      for (const [key, value] of Object.entries(components)) {
+        if (isMetaKey(key)) continue;
+        if (
+          !COMPONENT_COLOR_KEYS.includes(
+            key as (typeof COMPONENT_COLOR_KEYS)[number],
+          )
+        ) {
+          errors.push({
+            path: `components.${key}`,
+            message: `unknown field (expected one of ${COMPONENT_COLOR_KEYS.join(", ")})`,
+          });
+        } else if (typeof value !== "string") {
+          errors.push({
+            path: `components.${key}`,
+            message: "must be a color string",
+          });
+        }
+      }
+    }
+  }
+
+  const { paletteOverrides } = json;
+  if (paletteOverrides !== undefined) {
+    if (!isPlainObject(paletteOverrides)) {
+      errors.push({ path: "paletteOverrides", message: "must be an object" });
+    } else {
+      for (const [variant, steps] of Object.entries(paletteOverrides)) {
+        if (isMetaKey(variant)) continue;
+        if (!VARIANT_NAMES.includes(variant as VariantName)) {
+          errors.push({
+            path: `paletteOverrides.${variant}`,
+            message: `unknown variant (expected one of ${VARIANT_NAMES.join(", ")})`,
+          });
+          continue;
+        }
+        if (!isPlainObject(steps)) {
+          errors.push({
+            path: `paletteOverrides.${variant}`,
+            message: "must be an object keyed by tint step",
+          });
+          continue;
+        }
+        for (const [tint, hex] of Object.entries(steps)) {
+          if (isMetaKey(tint)) continue;
+          if (typeof hex !== "string") {
+            errors.push({
+              path: `paletteOverrides.${variant}.${tint}`,
+              message: "must be a color string",
+            });
+          }
         }
       }
     }

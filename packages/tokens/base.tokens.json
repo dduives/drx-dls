@@ -29,7 +29,11 @@
       "borderWidth": "1px",
       "borderStyle": "solid",
       "borderRadius": "0.375rem"
-    }
+    },
+    "comment_components": "Optional per-component background overrides (DRI-100). Empty by default = keep WebAwesome's defaults. Values are a hex or variant-tint ref like 'brand-40'.",
+    "components": {},
+    "comment_paletteOverrides": "Optional per-step palette pins (DRI-99). Empty by default = fully OKLCH-derived ramps. Shape: { variant: { tint: '#rrggbb' } }.",
+    "paletteOverrides": {}
   },
 
   "tints": [95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5],

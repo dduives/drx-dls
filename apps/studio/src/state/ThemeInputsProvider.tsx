@@ -11,9 +11,12 @@ export function ThemeInputsProvider({
   /** Optional seed (e.g. a project's stored inputs). Defaults to base.tokens.json. */
   initialIdentity?: Identity;
 }) {
-  // Loaded once on mount; resolveIdentity() merges over base.tokens.json defaults.
+  // Loaded once on mount. Always re-resolve through resolveIdentity() so a
+  // persisted/seed identity is normalized against base.tokens.json defaults —
+  // this backfills fields added in later schema revisions (e.g. paletteOverrides,
+  // components) that older stored projects won't have.
   const defaultIdentity = useMemo(
-    () => initialIdentity ?? resolveIdentity(),
+    () => resolveIdentity(initialIdentity),
     [initialIdentity],
   );
   const [identity, setIdentity] = useState<Identity>(defaultIdentity);
@@ -42,6 +45,39 @@ export function ThemeInputsProvider({
           ...prev,
           formControl: { ...prev.formControl, ...patch },
         }));
+      },
+      setComponentColor: (patch) => {
+        setIdentity((prev) => {
+          const components = { ...prev.components, ...patch };
+          // Drop keys explicitly cleared to `undefined` so the emitter falls
+          // back to WebAwesome defaults instead of emitting an empty override.
+          for (const key of Object.keys(patch) as (keyof typeof patch)[]) {
+            if (patch[key] === undefined) delete components[key];
+          }
+          return { ...prev, components };
+        });
+      },
+      setPaletteOverride: (variant, tint, hex) => {
+        setIdentity((prev) => ({
+          ...prev,
+          paletteOverrides: {
+            ...prev.paletteOverrides,
+            [variant]: { ...(prev.paletteOverrides[variant] ?? {}), [tint]: hex },
+          },
+        }));
+      },
+      clearPaletteOverride: (variant, tint) => {
+        setIdentity((prev) => {
+          const forVariant = { ...(prev.paletteOverrides[variant] ?? {}) };
+          delete forVariant[tint];
+          const paletteOverrides = { ...prev.paletteOverrides };
+          if (Object.keys(forVariant).length > 0) {
+            paletteOverrides[variant] = forVariant;
+          } else {
+            delete paletteOverrides[variant];
+          }
+          return { ...prev, paletteOverrides };
+        });
       },
       setDeviceScale: (device, patch) => {
         setIdentity((prev) => ({

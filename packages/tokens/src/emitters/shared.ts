@@ -1,3 +1,4 @@
+import Color from "colorjs.io";
 import type {
   DeviceOverride,
   Identity,
@@ -57,4 +58,18 @@ export function resolveColorRef(
 
   // Unrecognized reference — pass through unchanged.
   return { css: ref, hex: ref };
+}
+
+/**
+ * Format a color as a short human-readable OKLCH string for tooling/UI display
+ * (e.g. the Studio palette ramp): `oklch(66% 0.15 41)`. Lightness as a
+ * percentage, chroma to 3 decimals, hue rounded to a whole degree.
+ */
+export function formatOklch(color: string): string {
+  const oklch = new Color(color).to("oklch");
+  const [l, c, h] = oklch.coords;
+  const lPct = Math.round((l || 0) * 100);
+  const chroma = Math.round((c || 0) * 1000) / 1000;
+  const hue = h == null || Number.isNaN(h) ? 0 : Math.round(h);
+  return `oklch(${lPct}% ${chroma} ${hue})`;
 }
