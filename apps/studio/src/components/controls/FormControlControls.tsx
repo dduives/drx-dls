@@ -17,7 +17,7 @@ const TINTS = [95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5];
 // `variant-tint` reference, e.g. "neutral-70" / "brand-05".
 const TINT_REF = /^([a-z]+)-(\d{1,2})$/;
 
-const TEXT_FIELDS: { key: keyof FormControlTokens; label: string }[] = [
+const NUMERIC_FIELDS: { key: keyof FormControlTokens; label: string }[] = [
   { key: "paddingBlock", label: "Padding block" },
   { key: "paddingInline", label: "Padding inline" },
   { key: "borderWidth", label: "Border width" },
@@ -25,6 +25,87 @@ const TEXT_FIELDS: { key: keyof FormControlTokens; label: string }[] = [
 ];
 
 const BORDER_STYLES = ["solid", "dashed", "dotted", "double", "none"];
+
+// Slider bounds per CSS unit. Relative units (em/rem) tune finely around 0–4;
+// px steps in whole pixels up to 24. Values in any other unit (%, calc(), …)
+// fall back to a free-text input so nothing is clamped or lost.
+const UNIT_RANGES: Record<string, { min: number; max: number; step: number }> = {
+  em: { min: 0, max: 4, step: 0.05 },
+  rem: { min: 0, max: 4, step: 0.05 },
+  px: { min: 0, max: 24, step: 1 },
+};
+
+const NUMERIC_UNIT = /^(-?\d*\.?\d+)([a-z%]*)$/i;
+
+/** Trim floating-point noise from slider values (e.g. 0.35000000001 → 0.35). */
+function formatNumber(n: number): string {
+  return String(Math.round(n * 1000) / 1000);
+}
+
+/**
+ * A single --wa-form-control-* length token. When the value is a number in a
+ * known unit (em/rem/px) it renders a range slider with a live `<num><unit>`
+ * readout (matching ScaleControls UX); otherwise it degrades to a free-text
+ * CSS input so arbitrary values still round-trip.
+ */
+function NumericField({
+  fieldKey,
+  label,
+}: {
+  fieldKey: keyof FormControlTokens;
+  label: string;
+}) {
+  const { identity, setFormControl } = useThemeInputs();
+  const value = identity.formControl[fieldKey];
+  const match = NUMERIC_UNIT.exec(value.trim());
+  const unit = match?.[2]?.toLowerCase() ?? "";
+  const range = match ? UNIT_RANGES[unit] : undefined;
+
+  if (!match || !range) {
+    return (
+      <li className="space-y-0.5">
+        <label className="text-xs text-neutral-700" htmlFor={`fc-${fieldKey}`}>
+          {label}
+        </label>
+        <input
+          id={`fc-${fieldKey}`}
+          type="text"
+          value={value}
+          onChange={(e) => setFormControl({ [fieldKey]: e.target.value })}
+          placeholder="CSS value"
+          className="w-full rounded border border-neutral-200 px-1.5 py-1 font-mono text-xs"
+        />
+      </li>
+    );
+  }
+
+  const num = Number(match[1]);
+
+  return (
+    <li className="space-y-0.5">
+      <div className="flex items-center justify-between text-xs text-neutral-700">
+        <span>{label}</span>
+        <span className="font-mono text-neutral-500">
+          {formatNumber(num)}
+          {unit}
+        </span>
+      </div>
+      <input
+        id={`fc-${fieldKey}`}
+        type="range"
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        value={num}
+        onChange={(e) =>
+          setFormControl({ [fieldKey]: `${formatNumber(Number(e.target.value))}${unit}` })
+        }
+        aria-label={`${label} (${unit})`}
+        className="w-full cursor-pointer accent-neutral-700"
+      />
+    </li>
+  );
+}
 
 /**
  * Border-color picker. Values are either a `variant-tint` palette reference
@@ -123,20 +204,8 @@ export function FormControlControls() {
     <section className="space-y-2">
       <h3 className="text-xs font-semibold text-neutral-700">Form Controls</h3>
       <ul className="space-y-1.5">
-        {TEXT_FIELDS.map(({ key, label }) => (
-          <li key={key} className="space-y-0.5">
-            <label className="text-xs text-neutral-700" htmlFor={`fc-${key}`}>
-              {label}
-            </label>
-            <input
-              id={`fc-${key}`}
-              type="text"
-              value={fc[key]}
-              onChange={(e) => setFormControl({ [key]: e.target.value })}
-              placeholder="CSS value"
-              className="w-full rounded border border-neutral-200 px-1.5 py-1 font-mono text-xs"
-            />
-          </li>
+        {NUMERIC_FIELDS.map(({ key, label }) => (
+          <NumericField key={key} fieldKey={key} label={label} />
         ))}
         <li className="space-y-0.5">
           <label className="text-xs text-neutral-700" htmlFor="fc-borderStyle">
