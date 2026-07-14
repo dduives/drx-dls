@@ -3,8 +3,8 @@ import type { Identity } from "@drx-dls/tokens";
 import { useThemeInputs } from "../../state/useThemeInputs.ts";
 
 const SLOTS: { kind: keyof Identity["fontFamily"]; label: string }[] = [
-  { kind: "body", label: "Body" },
   { kind: "heading", label: "Heading" },
+  { kind: "body", label: "Body" },
   { kind: "code", label: "Code" },
 ];
 
@@ -29,10 +29,11 @@ const DEFAULT_FONTS: { label: string; value: string }[] = [
 const CUSTOM_VALUE = "__custom__";
 
 /**
- * Font-family pickers for body / heading / code (DRI-95). Each slot is a
- * dropdown of curated defaults (incl. Inter) plus any custom `@font-face`
- * families added in the FontFacesEditor (DRI-92), with a "Custom…" escape
- * hatch that reveals a free-text field for an arbitrary CSS font-family stack.
+ * Font-family pickers for heading / body / code (DRI-95). Heading leads the
+ * panel (DRI-110), then body, then code. Each slot is a dropdown of curated
+ * defaults (incl. Inter) plus any custom `@font-face` families added in the
+ * FontFacesEditor (DRI-92), with a "Custom…" escape hatch that reveals a
+ * free-text field for an arbitrary CSS font-family stack.
  */
 export function TypographyControls() {
   const { identity, setFontFamily } = useThemeInputs();
