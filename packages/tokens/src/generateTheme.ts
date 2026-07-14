@@ -1,5 +1,6 @@
 import baseTokens from "../base.tokens.json" with { type: "json" };
-import { deriveScale } from "./deriveScale.js";
+import { anchorTintFor, deriveOnColor, deriveScale } from "./deriveScale.js";
+import Color from "colorjs.io";
 import type {
   BaseTokens,
   DeviceName,
@@ -8,6 +9,7 @@ import type {
   ResolvedTheme,
   ThemeInputs,
   TintScale,
+  VariantCore,
   VariantName,
 } from "./types.js";
 
@@ -72,11 +74,29 @@ export function generateTheme(inputs: ThemeInputs = {}): ResolvedTheme {
     ]),
   ) as Record<VariantName, TintScale[]>;
 
+  // Core color per variant (DRI-119): the exact base hex is the source of truth
+  // — emitted verbatim as --wa-color-{variant}, with a derived on-color and the
+  // ramp step it anchors on.
+  const core = Object.fromEntries(
+    VARIANTS.map((variant): [VariantName, VariantCore] => {
+      const hex = identity.variants[variant];
+      return [
+        variant,
+        {
+          base: new Color(hex).to("srgb").toString({ format: "hex" }),
+          on: deriveOnColor(hex),
+          anchorTint: anchorTintFor(hex, BASE.tints),
+        },
+      ];
+    }),
+  ) as Record<VariantName, VariantCore>;
+
   return {
     name: BASE.name,
     identity,
     tints: BASE.tints,
     palette,
+    core,
     devices: identity.devices,
   };
 }

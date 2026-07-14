@@ -158,6 +158,18 @@ export interface TintScale {
   hex: string;
 }
 
+/**
+ * The per-variant core color (DRI-119). `base` is the exact brand hex, emitted
+ * verbatim as WebAwesome's `--wa-color-{variant}` core token; `on` is its
+ * derived readable on-color (`--wa-color-{variant}-on`); `anchorTint` is the
+ * numbered ramp step the base color landed on (surfaced in Studio).
+ */
+export interface VariantCore {
+  base: string;
+  on: string;
+  anchorTint: number;
+}
+
 /** Fully resolved theme, consumed by emitters. */
 export interface ResolvedTheme {
   name: string;
@@ -165,5 +177,7 @@ export interface ResolvedTheme {
   tints: number[];
   /** variant -> ordered tint scale. */
   palette: Record<VariantName, TintScale[]>;
+  /** variant -> core color (exact base hex + on-color + anchor step). */
+  core: Record<VariantName, VariantCore>;
   devices: Record<DeviceName, DeviceOverride>;
 }

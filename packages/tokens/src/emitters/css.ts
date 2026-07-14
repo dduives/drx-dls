@@ -40,6 +40,14 @@ function fontFaceRules(theme: ResolvedTheme): string[] {
 function paletteVars(theme: ResolvedTheme): string[] {
   const out: string[] = [];
   for (const [variant, scale] of Object.entries(theme.palette)) {
+    // Core token (DRI-119): the exact base hex + its readable on-color. WA's
+    // "representative colour for a variant"; emitted verbatim so brand colours
+    // survive round-trip (also fixes the DRI-115 missing-core-token bug).
+    const core = theme.core[variant as VariantName];
+    if (core) {
+      out.push(`  --wa-color-${variant}: ${core.base};`);
+      out.push(`  --wa-color-${variant}-on: ${core.on};`);
+    }
     for (const { tint, hex } of scale) {
       out.push(`  --wa-color-${variant}-${tintLabel(tint)}: ${hex};`);
     }

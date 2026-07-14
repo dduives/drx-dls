@@ -1,4 +1,4 @@
-import type { DeviceName, ResolvedTheme } from "../types.js";
+import type { DeviceName, ResolvedTheme, VariantName } from "../types.js";
 import { resolveColorRef, resolveScales, tintLabel } from "./shared.js";
 
 const HEADER = `// drx-dls theme — generated, do not edit by hand.
@@ -21,6 +21,16 @@ public extension Color {
 function paletteEnum(theme: ResolvedTheme): string {
   const lines: string[] = [];
   for (const [variant, scale] of Object.entries(theme.palette)) {
+    // Core color (DRI-119): exact base hex + derived on-color.
+    const core = theme.core[variant as VariantName];
+    if (core) {
+      lines.push(
+        `    public static let ${variant} = Color(drxHex: "${core.base}")`,
+      );
+      lines.push(
+        `    public static let ${variant}On = Color(drxHex: "${core.on}")`,
+      );
+    }
     for (const { tint, hex } of scale) {
       lines.push(
         `    public static let ${variant}${tintLabel(tint)} = Color(drxHex: "${hex}")`,

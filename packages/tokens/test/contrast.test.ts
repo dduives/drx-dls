@@ -30,6 +30,7 @@ function themeWithTints(tintHex: Record<number, string>): ResolvedTheme {
     identity: {} as ResolvedTheme["identity"],
     tints: scale.map((t) => t.tint),
     palette,
+    core: {} as ResolvedTheme["core"],
     devices: {} as ResolvedTheme["devices"],
   };
 }
