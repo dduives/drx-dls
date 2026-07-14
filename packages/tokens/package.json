@@ -1,6 +1,6 @@
 {
   "name": "@drx-dls/tokens",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "WebAwesome --wa-* token structure, theme generator, and multi-platform emitters (CSS / Swift / JSON) for the DRX design system",
   "license": "MIT",
   "type": "module",
