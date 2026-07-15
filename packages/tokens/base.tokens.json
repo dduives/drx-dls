@@ -1,6 +1,6 @@
 {
   "$schema": "./schema.json",
-  "version": 2,
+  "version": 3,
   "name": "drx-dls base tokens",
   "comment": "STRUCTURE = source of truth for the shape of a theme, targeting WebAwesome's --wa-* token schema. Per-app drx.theme.json overrides only the `identity` inputs. Palette tints are mode-independent (WebAwesome's semantic layer handles light/dark).",
 
@@ -21,7 +21,6 @@
       "heading": "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
       "code": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace"
     },
-    "fontFaces": [],
     "formControl": {
       "paddingBlock": "0.5em",
       "paddingInline": "1em",

@@ -15,7 +15,8 @@ function sampleIdentity(): Identity {
     radiusScale: 1.3,
     spaceScale: 0.9,
     fontFamily: { body: "Inter, sans-serif" },
-    fontFaces: [{ family: "Inter", src: "https://x/Inter.woff2", weight: "400 700" }],
+    customFontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
     formControl: { borderRadius: "0.5rem" },
     devices: { ios: { radiusScale: 1.25 }, tvos: { fontSizeScale: 1.7 } },
   });

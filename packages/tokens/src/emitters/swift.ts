@@ -53,22 +53,10 @@ function scalesEnum(theme: ResolvedTheme, device: DeviceName): string {
 
 function fontsEnum(theme: ResolvedTheme): string {
   const f = theme.identity.fontFamily;
-  const faces = theme.identity.fontFaces;
-  const faceLines = faces.map((face) => {
-    const weight = face.weight ? `"${face.weight}"` : "nil";
-    const style = face.style ? `"${face.style}"` : "nil";
-    return `        (family: "${face.family}", src: "${face.src}", weight: ${weight}, style: ${style})`;
-  });
-  const facesLiteral =
-    faceLines.length > 0 ? `[\n${faceLines.join(",\n")}\n    ]` : "[]";
-  // Font *metadata* only — registering/loading custom fonts is an app-repo
-  // concern on native (Info.plist / bundle resources). Passed through as-is.
   return `public enum DRXFonts {
     public static let body = "${f.body}"
     public static let heading = "${f.heading}"
     public static let code = "${f.code}"
-    /// Custom @font-face metadata (web). Native apps must bundle/register these fonts themselves.
-    public static let customFaces: [(family: String, src: String, weight: String?, style: String?)] = ${facesLiteral}
 }`;
 }
 

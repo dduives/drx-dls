@@ -8,12 +8,13 @@ import {
 
 const SCOPE = PREVIEW_SCOPE_SELECTOR; // "[data-drx-preview]"
 
-// A theme with a custom @font-face so we can assert it stays at the top level.
+// A theme with a custom-font @import so we can assert it stays at the top level.
 function themeCss() {
   return emitCss(
     generateTheme(
       resolveIdentity({
-        fontFaces: [{ family: "Inter", src: "https://x/Inter.woff2" }],
+        customFontUrl:
+          "https://fonts.googleapis.com/css2?family=Inter&display=swap",
       }),
     ),
   );
@@ -35,14 +36,14 @@ describe("scopeThemeCss", () => {
     expect(scoped).not.toMatch(/^\[data-device="(ios|tvos)"\] \{/m);
   });
 
-  it("leaves @font-face rules at the top level (never nested/prefixed)", () => {
+  it("leaves the custom-font @import at the top level (never nested/prefixed)", () => {
     const scoped = scopeThemeCss(themeCss(), SCOPE);
-    const faceIdx = scoped.indexOf("@font-face");
-    expect(faceIdx).toBeGreaterThan(-1);
-    // @font-face precedes the scoped :root block and is not prefixed.
-    expect(faceIdx).toBeLessThan(scoped.indexOf(`${SCOPE} {`));
-    expect(scoped).not.toContain(`${SCOPE} @font-face`);
-    expect(scoped).toMatch(/^@font-face \{/m);
+    const importIdx = scoped.indexOf("@import");
+    expect(importIdx).toBeGreaterThan(-1);
+    // @import precedes the scoped :root block and is not prefixed.
+    expect(importIdx).toBeLessThan(scoped.indexOf(`${SCOPE} {`));
+    expect(scoped).not.toContain(`${SCOPE} @import`);
+    expect(scoped).toMatch(/^@import /m);
   });
 
   it("prefixes component element rules (wa-badge) with the scope", () => {

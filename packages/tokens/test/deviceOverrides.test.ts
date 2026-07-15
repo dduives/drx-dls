@@ -67,13 +67,14 @@ describe("emitCss standalone (per-device)", () => {
     expect(css).toContain("--wa-border-radius-scale: 1.25;");
   });
 
-  it("still emits @font-face rules at the top", () => {
+  it("still emits the custom-font @import at the top", () => {
     const theme = generateTheme({
-      fontFaces: [{ family: "Inter", src: "https://x/Inter.woff2" }],
+      customFontUrl:
+        "https://fonts.googleapis.com/css2?family=Inter&display=swap",
     });
     const css = emitCss(theme, { device: "tvos" });
-    expect(css.indexOf("@font-face")).toBeGreaterThan(-1);
-    expect(css.indexOf("@font-face")).toBeLessThan(css.indexOf(":root"));
+    expect(css.indexOf("@import")).toBeGreaterThan(-1);
+    expect(css.indexOf("@import")).toBeLessThan(css.indexOf(":root"));
   });
 });
 

@@ -13,7 +13,6 @@ describe("validateThemeInputs", () => {
       variants: { brand: "#123456", danger: "#ff0000" },
       radiusScale: 1.2,
       fontFamily: { body: "Inter", heading: "Inter" },
-      fontFaces: [{ family: "Inter", src: "https://x/inter.woff2" }],
       formControl: { borderRadius: "0.5rem" },
     });
     expect(result.valid).toBe(true);
@@ -69,17 +68,6 @@ describe("validateThemeInputs", () => {
     expect(result.errors[0].path).toBe("radiusScale");
   });
 
-  it("validates fontFaces entries", () => {
-    const result = validateThemeInputs({
-      fontFaces: [{ family: "", src: "" }, "nope"],
-    });
-    expect(result.valid).toBe(false);
-    const paths = result.errors.map((e) => e.path);
-    expect(paths).toContain("fontFaces[0].family");
-    expect(paths).toContain("fontFaces[0].src");
-    expect(paths).toContain("fontFaces[1]");
-  });
-
   it("accepts a string customFontUrl and rejects a non-string", () => {
     expect(
       validateThemeInputs({
@@ -115,13 +103,43 @@ describe("validateThemeInputs", () => {
 });
 
 describe("migrateThemeInputs", () => {
-  it("is a no-op that stamps the current version for older files", () => {
+  it("stamps the current version for older files (no dropped fields present)", () => {
     const migrated = migrateThemeInputs({
       version: CURRENT_SCHEMA_VERSION - 1,
       variants: { brand: "#123456" },
     });
     expect(migrated.version).toBe(CURRENT_SCHEMA_VERSION);
     expect(migrated.variants).toEqual({ brand: "#123456" });
+  });
+
+  it("drops fontFaces when migrating a v2 theme to v3 (DRI-113)", () => {
+    const migrated = migrateThemeInputs({
+      version: 2,
+      variants: { brand: "#123456" },
+      fontFamily: { body: "Inter", heading: "Inter", code: "mono" },
+      fontFaces: [{ family: "Inter", src: "https://x/inter.woff2" }],
+    }) as Record<string, unknown>;
+    expect(migrated.version).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.fontFaces).toBeUndefined();
+    // Everything else survives untouched.
+    expect(migrated.variants).toEqual({ brand: "#123456" });
+    expect(migrated.fontFamily).toEqual({
+      body: "Inter",
+      heading: "Inter",
+      code: "mono",
+    });
+  });
+
+  it("re-validates a migrated v2 theme cleanly under v3 (round-trip)", () => {
+    const migrated = migrateThemeInputs({
+      version: 2,
+      variants: { brand: "#123456" },
+      fontFaces: [{ family: "Inter", src: "https://x/inter.woff2" }],
+    });
+    const result = validateThemeInputs(migrated);
+    expect(result.valid).toBe(true);
+    expect(result.needsMigration).toBe(false);
+    expect(result.version).toBe(CURRENT_SCHEMA_VERSION);
   });
 
   it("leaves current-version inputs untouched (aside from version)", () => {

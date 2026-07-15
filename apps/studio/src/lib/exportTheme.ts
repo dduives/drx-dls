@@ -4,7 +4,7 @@
 //
 // The JSON shape mirrors `packages/tokens/drx.theme.example.json` exactly:
 //   version, variants, radiusScale, spaceScale, fontSizeScale,
-//   borderWidthScale, fontFamily, fontFaces, formControl, devices.
+//   borderWidthScale, fontFamily, formControl, devices.
 // `$comment` annotations from the example are dropped (they are just docs).
 // No resolved palette/values are emitted — `Identity` is already inputs-only.
 //
@@ -16,7 +16,6 @@ import {
   emitCss,
   generateTheme,
   type DeviceName,
-  type FontFace,
   type Identity,
 } from "@drx-dls/tokens";
 
@@ -29,16 +28,6 @@ import {
  * trailing newline, matching the CLI's file style.
  */
 export function buildThemeJson(identity: Identity): string {
-  // Rebuild each font face so only defined optional keys are serialized and
-  // key order stays stable.
-  const fontFaces = identity.fontFaces.map((face) => {
-    const out: FontFace = { family: face.family, src: face.src };
-    if (face.weight !== undefined) out.weight = face.weight;
-    if (face.style !== undefined) out.style = face.style;
-    if (face.display !== undefined) out.display = face.display;
-    return out;
-  });
-
   const doc = {
     version: CURRENT_SCHEMA_VERSION,
     variants: identity.variants,
@@ -47,7 +36,6 @@ export function buildThemeJson(identity: Identity): string {
     fontSizeScale: identity.fontSizeScale,
     borderWidthScale: identity.borderWidthScale,
     fontFamily: identity.fontFamily,
-    fontFaces,
     // DRI-108: optional Google Fonts URL (web only). Only serialized when set,
     // so themes without a custom font stay clean and re-import unchanged.
     ...(identity.customFontUrl
@@ -70,7 +58,7 @@ export function buildThemeJson(identity: Identity): string {
 
 /**
  * Build the drop-in `theme.css` for an identity: the UNSCOPED CLI output an app
- * would ship directly (`:root { … }` + `@font-face` + device blocks). This is
+ * would ship directly (`:root { … }` + optional `@import` + device blocks). This is
  * intentionally NOT the preview-scoped variant (see `scopedTheme.ts`).
  *
  * Combined (no `device`) → `:root` (web scales) + `[data-device]` blocks.
