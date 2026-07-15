@@ -1,8 +1,11 @@
 import { useState } from "react";
 import type { Identity } from "@drx-dls/tokens";
 import { useThemeInputs } from "../../state/useThemeInputs.ts";
+import { parseGoogleFontUrl } from "../../lib/parseGoogleFontUrl.ts";
 
-const SLOTS: { kind: keyof Identity["fontFamily"]; label: string }[] = [
+type Slot = keyof Identity["fontFamily"];
+
+const SLOTS: { kind: Slot; label: string }[] = [
   { kind: "heading", label: "Heading" },
   { kind: "body", label: "Body" },
   { kind: "code", label: "Code" },
@@ -28,35 +31,62 @@ const DEFAULT_FONTS: { label: string; value: string }[] = [
 
 const CUSTOM_VALUE = "__custom__";
 
+/** CSS font-family stack for a custom family loaded via Google Fonts. */
+function familyStack(family: string): string {
+  return `'${family}', sans-serif`;
+}
+
 /**
  * Font-family pickers for heading / body / code (DRI-95). Heading leads the
  * panel (DRI-110), then body, then code. Each slot is a dropdown of curated
- * defaults (incl. Inter) plus any custom `@font-face` families added in the
- * FontFacesEditor (DRI-92), with a "Custom…" escape hatch that reveals a
- * free-text field for an arbitrary CSS font-family stack.
+ * defaults (incl. Inter) plus any family loaded from a Google Fonts URL, with a
+ * "Custom…" option (DRI-108) that reveals a single URL field: paste a
+ * `fonts.googleapis.com` stylesheet link and the family is parsed out, loaded
+ * into the preview (via the emitted `@import`), and registered as selectable.
+ * One custom font at a time — a new URL replaces the previous one.
  */
 export function TypographyControls() {
-  const { identity, setFontFamily } = useThemeInputs();
+  const { identity, setFontFamily, setCustomFontUrl } = useThemeInputs();
 
-  // Custom families registered via the font-faces editor become selectable.
-  const customFamilies = Array.from(
-    new Set(
-      identity.fontFaces
-        .map((f) => f.family.trim())
-        .filter((family) => family.length > 0),
-    ),
-  );
+  // Families registered via the current custom-font URL become selectable.
+  const customFamilies = (() => {
+    if (!identity.customFontUrl) return [];
+    const parsed = parseGoogleFontUrl(identity.customFontUrl);
+    return parsed.ok ? parsed.value.families : [];
+  })();
   const customOptions = customFamilies.map((family) => ({
     label: family,
-    value: `'${family}', sans-serif`,
+    value: familyStack(family),
   }));
 
   const allOptions = [...DEFAULT_FONTS, ...customOptions];
 
-  // Track which slots the user has explicitly put into free-text mode.
-  const [customSlots, setCustomSlots] = useState<
-    Partial<Record<keyof Identity["fontFamily"], boolean>>
-  >({});
+  // Per-slot UI state: which slots are in "paste a URL" mode, the draft URL,
+  // and any inline validation error.
+  const [customSlots, setCustomSlots] = useState<Partial<Record<Slot, boolean>>>(
+    {},
+  );
+  const [urlDrafts, setUrlDrafts] = useState<Partial<Record<Slot, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<Slot, string | null>>>({});
+
+  const openCustom = (kind: Slot) => {
+    setCustomSlots((prev) => ({ ...prev, [kind]: true }));
+    setUrlDrafts((prev) => ({ ...prev, [kind]: identity.customFontUrl ?? "" }));
+    setErrors((prev) => ({ ...prev, [kind]: null }));
+  };
+
+  const loadFont = (kind: Slot) => {
+    const draft = (urlDrafts[kind] ?? "").trim();
+    const parsed = parseGoogleFontUrl(draft);
+    if (!parsed.ok) {
+      setErrors((prev) => ({ ...prev, [kind]: parsed.error }));
+      return;
+    }
+    setCustomFontUrl(draft);
+    setFontFamily(kind, familyStack(parsed.value.families[0]!));
+    setErrors((prev) => ({ ...prev, [kind]: null }));
+    setCustomSlots((prev) => ({ ...prev, [kind]: false }));
+  };
 
   return (
     <section className="space-y-2">
@@ -65,8 +95,9 @@ export function TypographyControls() {
         {SLOTS.map(({ kind, label }) => {
           const current = identity.fontFamily[kind];
           const matched = allOptions.some((o) => o.value === current);
-          const isCustom = customSlots[kind] ?? !matched;
-          const selectValue = isCustom ? CUSTOM_VALUE : current;
+          const isCustom = customSlots[kind] === true;
+          const selectValue = matched && !isCustom ? current : CUSTOM_VALUE;
+          const error = errors[kind];
 
           return (
             <li key={kind} className="space-y-0.5">
@@ -79,7 +110,7 @@ export function TypographyControls() {
                 onChange={(e) => {
                   const next = e.target.value;
                   if (next === CUSTOM_VALUE) {
-                    setCustomSlots((prev) => ({ ...prev, [kind]: true }));
+                    openCustom(kind);
                     return;
                   }
                   setCustomSlots((prev) => ({ ...prev, [kind]: false }));
@@ -106,14 +137,35 @@ export function TypographyControls() {
                 <option value={CUSTOM_VALUE}>Custom…</option>
               </select>
               {isCustom && (
-                <input
-                  type="text"
-                  value={current}
-                  onChange={(e) => setFontFamily(kind, e.target.value)}
-                  placeholder="font-family stack"
-                  aria-label={`${label} custom font-family stack`}
-                  className="w-full rounded border border-neutral-200 px-1.5 py-1 text-xs"
-                />
+                <div className="space-y-1">
+                  <input
+                    type="url"
+                    value={urlDrafts[kind] ?? ""}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setUrlDrafts((prev) => ({ ...prev, [kind]: next }));
+                      if (error) setErrors((prev) => ({ ...prev, [kind]: null }));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") loadFont(kind);
+                    }}
+                    placeholder="https://fonts.googleapis.com/css2?family=…"
+                    aria-label={`${label} Google Fonts URL`}
+                    className="w-full rounded border border-neutral-200 px-1.5 py-1 text-xs"
+                  />
+                  {error && <p className="text-xs text-red-600">{error}</p>}
+                  <button
+                    type="button"
+                    onClick={() => loadFont(kind)}
+                    className="w-full rounded bg-neutral-800 px-2 py-1 text-xs font-medium text-white hover:bg-neutral-700"
+                  >
+                    Load font
+                  </button>
+                  <p className="text-[11px] text-neutral-400">
+                    Paste a Google Fonts stylesheet URL. The family loads in the
+                    preview and becomes selectable above.
+                  </p>
+                </div>
               )}
             </li>
           );

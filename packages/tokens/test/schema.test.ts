@@ -80,6 +80,18 @@ describe("validateThemeInputs", () => {
     expect(paths).toContain("fontFaces[1]");
   });
 
+  it("accepts a string customFontUrl and rejects a non-string", () => {
+    expect(
+      validateThemeInputs({
+        customFontUrl:
+          "https://fonts.googleapis.com/css2?family=Inter&display=swap",
+      }).valid,
+    ).toBe(true);
+    const bad = validateThemeInputs({ customFontUrl: 123 });
+    expect(bad.valid).toBe(false);
+    expect(bad.errors.some((e) => e.path === "customFontUrl")).toBe(true);
+  });
+
   it("rejects unknown formControl fields", () => {
     const result = validateThemeInputs({ formControl: { bogus: "x" } });
     expect(result.valid).toBe(false);

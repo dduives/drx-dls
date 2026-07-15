@@ -1,6 +1,5 @@
 import { useThemeInputs } from "../../state/useThemeInputs.ts";
 import { ContrastWarnings } from "../ContrastWarnings.tsx";
-import { FontFacesEditor } from "../FontFacesEditor.tsx";
 import { VariantColorControls } from "./VariantColorControls.tsx";
 import { ScaleControls } from "./ScaleControls.tsx";
 import { TypographyControls } from "./TypographyControls.tsx";
@@ -20,7 +19,6 @@ export function ControlPanel() {
       <VariantColorControls />
       <ScaleControls />
       <TypographyControls />
-      <FontFacesEditor />
       <FormControlControls />
       <ComponentColorControls />
       <ContrastWarnings />

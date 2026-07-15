@@ -159,6 +159,11 @@ function validateFields(
     }
   }
 
+  const { customFontUrl } = json;
+  if (customFontUrl !== undefined && typeof customFontUrl !== "string") {
+    errors.push({ path: "customFontUrl", message: "must be a string" });
+  }
+
   if (formControl !== undefined) {
     if (!isPlainObject(formControl)) {
       errors.push({ path: "formControl", message: "must be an object" });

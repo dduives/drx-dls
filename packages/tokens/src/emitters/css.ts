@@ -37,6 +37,16 @@ function fontFaceRules(theme: ResolvedTheme): string[] {
   return theme.identity.fontFaces.map(fontFaceRule);
 }
 
+/**
+ * `@import` for a Google Fonts stylesheet (DRI-108, web only). Must precede
+ * every other rule in the sheet, so it's emitted right after the leading
+ * comment and before any `@font-face`. Returns null when no custom font is set.
+ */
+function fontImportRule(theme: ResolvedTheme): string | null {
+  const url = theme.identity.customFontUrl;
+  return url ? `@import url("${url}");` : null;
+}
+
 function paletteVars(theme: ResolvedTheme): string[] {
   const out: string[] = [];
   for (const [variant, scale] of Object.entries(theme.palette)) {
@@ -136,6 +146,11 @@ export function emitCss(
       ? `/* drx-dls theme: ${theme.name} — ${device} — generated, do not edit by hand */`
       : `/* drx-dls theme: ${theme.name} — generated, do not edit by hand */`,
   );
+
+  const fontImport = fontImportRule(theme);
+  if (fontImport) {
+    blocks.push(fontImport);
+  }
 
   const faces = fontFaceRules(theme);
   if (faces.length > 0) {

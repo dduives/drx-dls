@@ -92,6 +92,13 @@ export interface Identity extends ScaleKnobs {
    * emitters pass this metadata through as-is.
    */
   fontFaces: FontFace[];
+  /**
+   * Optional custom web font loaded from a Google Fonts stylesheet URL
+   * (web only, DRI-108). Emitted as an `@import` in the generated CSS so the
+   * font loads at runtime; reference the family from the `fontFamily` stacks
+   * above. Native platforms ignore it. Absent when unused.
+   */
+  customFontUrl?: string;
   /** Form-control component-group overrides (--wa-form-control-*). */
   formControl: FormControlTokens;
   /**

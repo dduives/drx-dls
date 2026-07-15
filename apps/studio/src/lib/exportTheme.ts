@@ -48,6 +48,11 @@ export function buildThemeJson(identity: Identity): string {
     borderWidthScale: identity.borderWidthScale,
     fontFamily: identity.fontFamily,
     fontFaces,
+    // DRI-108: optional Google Fonts URL (web only). Only serialized when set,
+    // so themes without a custom font stay clean and re-import unchanged.
+    ...(identity.customFontUrl
+      ? { customFontUrl: identity.customFontUrl }
+      : {}),
     formControl: identity.formControl,
     // DRI-100 / DRI-99: optional override layers. Always present on `Identity`
     // (default `{}`); exported as-is so the file round-trips.
