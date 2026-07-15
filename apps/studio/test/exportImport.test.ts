@@ -8,7 +8,7 @@ import {
 import { buildThemeJson } from "../src/lib/exportTheme.ts";
 import { importThemeInputs } from "../src/lib/importTheme.ts";
 
-// Exercises variants, scale knobs, typography, custom @font-face metadata,
+// Exercises variants, scale knobs, typography, a custom Google Font URL,
 // form-control overrides, AND per-device scale overrides — the latter must
 // survive the round-trip (DRI-64 requirement).
 function richIdentity(): Identity {
@@ -19,9 +19,8 @@ function richIdentity(): Identity {
     fontSizeScale: 1.1,
     borderWidthScale: 1.0,
     fontFamily: { body: "Inter, sans-serif", heading: "Lexend, sans-serif" },
-    fontFaces: [
-      { family: "Inter", src: "https://x/Inter.woff2", weight: "400 700", display: "swap" },
-    ],
+    customFontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap",
     formControl: { borderRadius: "0.5rem", borderColor: "brand-40" },
     devices: {
       ios: { radiusScale: 1.25, fontSizeScale: 1.06 },

@@ -2,7 +2,6 @@ import { createContext } from "react";
 import type {
   ComponentColorTokens,
   DeviceName,
-  FontFace,
   FormControlTokens,
   Identity,
   ScaleKnobs,
@@ -50,8 +49,12 @@ export interface ThemeInputsContextValue {
    * `updateIdentity` (the global baseline knobs); this targets `ios`/`tvos`.
    */
   setDeviceScale: (device: DeviceName, patch: Partial<ScaleKnobs>) => void;
-  /** Replace the custom `@font-face` list (web font loading). */
-  setFontFaces: (fontFaces: FontFace[]) => void;
+  /**
+   * Set (or clear, with an empty string) the custom-font Google Fonts URL
+   * (DRI-108, web only). The parsed family becomes selectable in the font
+   * dropdowns and loads in the preview via the emitted `@import`.
+   */
+  setCustomFontUrl: (url: string) => void;
   /** Reset to base.tokens.json defaults. */
   reset: () => void;
 }

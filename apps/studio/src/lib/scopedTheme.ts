@@ -13,17 +13,17 @@ export const PREVIEW_STYLE_ID = "drx-preview-theme";
  * Rewrite the (well-formed, known) CSS emitted by `emitCss` so its theme vars
  * apply only inside the preview pane instead of globally.
  *
- * `emitCss` emits, in order: a leading comment, optional `@font-face` rules,
- * a `:root { … }` block, then `[data-device="ios"] { … }` /
+ * `emitCss` emits, in order: a leading comment, an optional `@import` (custom
+ * Google Font, DRI-108), a `:root { … }` block, then `[data-device="ios"] { … }` /
  * `[data-device="tvos"] { … }` blocks. We:
  *   - rewrite the top-level `:root {` to `${scope} {` (scope the vars), and
  *   - prefix each `[data-device="…"] {` with `${scope}` so the device overrides
  *     apply when `data-device` is set on the scope root itself
  *     (`${scope}[data-device="ios"] { … }`).
  *
- * `@font-face` rules are left untouched — they must stay at the top level
- * (`@font-face` cannot be nested under a selector). Component-family override
- * rules that `emitCss` emits as bare element selectors (e.g. `wa-badge { … }`)
+ * The `@import` for a custom Google Font is left untouched — it must stay at
+ * the top level (an `@import` cannot be nested under a selector). Component-family
+ * override rules that `emitCss` emits as bare element selectors (e.g. `wa-badge { … }`)
  * are prefixed with `${scope}` so they only affect components inside the
  * preview. The transform is a targeted replace keyed on the exact block-start
  * prefixes `emitCss` produces; those prefixes only occur at block starts in the

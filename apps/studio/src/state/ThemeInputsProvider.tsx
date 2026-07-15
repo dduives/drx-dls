@@ -88,8 +88,14 @@ export function ThemeInputsProvider({
           },
         }));
       },
-      setFontFaces: (fontFaces) => {
-        setIdentity((prev) => ({ ...prev, fontFaces }));
+      setCustomFontUrl: (url) => {
+        setIdentity((prev) => {
+          const next = { ...prev };
+          const trimmed = url.trim();
+          if (trimmed) next.customFontUrl = trimmed;
+          else delete next.customFontUrl;
+          return next;
+        });
       },
       reset: () => setIdentity(resolveIdentity()),
     }),

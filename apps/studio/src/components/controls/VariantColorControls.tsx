@@ -34,12 +34,14 @@ const TINT_HINTS: Record<number, string> = {
 type Selected = { variant: VariantName; tint: number };
 
 /**
- * Palette editor (DRI-99). Per variant: the prominent base-hex input plus the
- * full numbered ramp as clickable swatches (WA's canonical 95→05 step numbers,
- * each with a semantic hint). Selecting a swatch reveals its hex + OKLCH and an
- * advanced per-step pin/override (an escape hatch over the OKLCH generation).
+ * Palette editor (DRI-99 / DRI-119). Per variant: the prominent base-hex input
+ * plus the full numbered ramp as clickable swatches (WA's canonical 95→05 step
+ * numbers, each with a semantic hint). The base hex is the anchor of the ramp
+ * (DRI-119) — it's emitted verbatim at the step it lands on, marked here with a
+ * dot and shown as "lands on step NN". Selecting a swatch reveals its hex +
+ * OKLCH and an advanced per-step pin/override (an escape hatch over generation).
  * The ramp is the same one `generateTheme` derives for the live preview, so
- * pinned steps and base-color edits are reflected immediately.
+ * base-color edits and pinned steps are reflected immediately.
  */
 export function VariantColorControls() {
   const { identity, setVariantColor, setPaletteOverride, clearPaletteOverride } =
@@ -47,7 +49,7 @@ export function VariantColorControls() {
   const [selected, setSelected] = useState<Selected | null>(null);
 
   // Same derivation the preview uses — reflects base color + pinned steps.
-  const palette = useMemo(() => generateTheme(identity).palette, [identity]);
+  const { palette, core } = useMemo(() => generateTheme(identity), [identity]);
 
   const selectedEntry =
     selected && palette[selected.variant].find((s) => s.tint === selected.tint);
@@ -61,6 +63,7 @@ export function VariantColorControls() {
         {VARIANTS.map(({ name, label }) => {
           const hex = identity.variants[name];
           const scale = palette[name];
+          const anchorTint = core[name].anchorTint;
           return (
             <li key={name} className="space-y-1.5">
               <div className="flex items-center gap-2">
@@ -73,6 +76,9 @@ export function VariantColorControls() {
                 />
                 <span className="flex-1 text-xs font-medium text-neutral-700">
                   {label}
+                  <span className="ml-1.5 font-normal text-[10px] text-neutral-400">
+                    lands on step {tintLabel(anchorTint)}
+                  </span>
                 </span>
                 <input
                   type="text"
@@ -93,6 +99,7 @@ export function VariantColorControls() {
                   const active =
                     selected?.variant === name && selected.tint === tint;
                   const pinned = isPinned(name, tint);
+                  const isAnchor = tint === anchorTint;
                   return (
                     <button
                       key={tint}
@@ -100,16 +107,24 @@ export function VariantColorControls() {
                       onClick={() =>
                         setSelected(active ? null : { variant: name, tint })
                       }
-                      title={`${tintLabel(tint)} · ${TINT_HINTS[tint] ?? ""}${pinned ? " · pinned" : ""}\n${tintHex}`}
-                      aria-label={`${label} tint ${tintLabel(tint)}${pinned ? ", pinned" : ""}`}
+                      title={`${tintLabel(tint)} · ${TINT_HINTS[tint] ?? ""}${isAnchor ? " · your color" : ""}${pinned ? " · pinned" : ""}\n${tintHex}`}
+                      aria-label={`${label} tint ${tintLabel(tint)}${isAnchor ? ", your base color" : ""}${pinned ? ", pinned" : ""}`}
                       aria-pressed={active}
                       className={`relative flex h-8 flex-1 flex-col items-center justify-end rounded-sm border text-[8px] leading-none ${
                         active
                           ? "border-neutral-900 ring-1 ring-neutral-900"
-                          : "border-neutral-200"
+                          : isAnchor
+                            ? "border-neutral-900"
+                            : "border-neutral-200"
                       }`}
                       style={{ backgroundColor: tintHex }}
                     >
+                      {isAnchor && (
+                        <span
+                          aria-hidden
+                          className="absolute left-0.5 top-0.5 h-1 w-1 rounded-full bg-neutral-900 shadow ring-1 ring-white"
+                        />
+                      )}
                       {pinned && (
                         <span
                           aria-hidden

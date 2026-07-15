@@ -75,7 +75,7 @@ function validateFields(
   json: Record<string, unknown>,
   errors: ValidationIssue[],
 ): void {
-  const { variants, fontFamily, fontFaces, formControl } = json;
+  const { variants, fontFamily, formControl } = json;
 
   if (variants !== undefined) {
     if (!isPlainObject(variants)) {
@@ -126,37 +126,9 @@ function validateFields(
     }
   }
 
-  if (fontFaces !== undefined) {
-    if (!Array.isArray(fontFaces)) {
-      errors.push({ path: "fontFaces", message: "must be an array" });
-    } else {
-      fontFaces.forEach((face, i) => {
-        if (!isPlainObject(face)) {
-          errors.push({ path: `fontFaces[${i}]`, message: "must be an object" });
-          return;
-        }
-        if (typeof face.family !== "string" || face.family.length === 0) {
-          errors.push({
-            path: `fontFaces[${i}].family`,
-            message: "must be a non-empty string",
-          });
-        }
-        if (typeof face.src !== "string" || face.src.length === 0) {
-          errors.push({
-            path: `fontFaces[${i}].src`,
-            message: "must be a non-empty string",
-          });
-        }
-        for (const opt of ["weight", "style", "display"] as const) {
-          if (face[opt] !== undefined && typeof face[opt] !== "string") {
-            errors.push({
-              path: `fontFaces[${i}].${opt}`,
-              message: "must be a string",
-            });
-          }
-        }
-      });
-    }
+  const { customFontUrl } = json;
+  if (customFontUrl !== undefined && typeof customFontUrl !== "string") {
+    errors.push({ path: "customFontUrl", message: "must be a string" });
   }
 
   if (formControl !== undefined) {
@@ -328,12 +300,19 @@ type Migration = (input: Record<string, unknown>) => Record<string, unknown>;
 
 /**
  * Registry of migrations keyed by the *source* version. The v1→v2 step is a
- * no-op: the input shape did not change when versioning was introduced. Future
- * schema changes add a step here (e.g. `2: (i) => ...`) without touching the
- * migration runner below.
+ * no-op: the input shape did not change when versioning was introduced. The
+ * v2→v3 step (DRI-113) drops the hand-entered `fontFaces` field, superseded by
+ * DRI-108's Google Fonts `customFontUrl`. No value is preserved — a legacy
+ * `@font-face` family can't be turned into a Google Fonts URL; users re-add the
+ * font via the new field. Future schema changes add a step here without
+ * touching the migration runner below.
  */
 const MIGRATIONS: Record<number, Migration> = {
   1: (input) => input,
+  2: (input) => {
+    const { fontFaces: _dropped, ...rest } = input;
+    return rest;
+  },
 };
 
 /**

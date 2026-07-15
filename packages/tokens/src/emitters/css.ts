@@ -1,45 +1,27 @@
-import type { DeviceName, FontFace, ResolvedTheme, VariantName } from "../types.js";
+import type { DeviceName, ResolvedTheme, VariantName } from "../types.js";
 import { resolveColorRef, resolveScales, tintLabel } from "./shared.js";
 
-const FORMAT_BY_EXT: Record<string, string> = {
-  woff2: "woff2",
-  woff: "woff",
-  ttf: "truetype",
-  otf: "opentype",
-  eot: "embedded-opentype",
-  svg: "svg",
-};
-
-/** Build the CSS `src:` value for a font face, inferring format from the URL. */
-function fontFaceSrc(src: string): string {
-  // Already a full src value (url(...)/local(...)) — pass through verbatim.
-  if (/\b(url|local)\s*\(/.test(src)) return src;
-  const withoutQuery = src.split(/[?#]/)[0] ?? src;
-  const ext = withoutQuery.split(".").pop()?.toLowerCase() ?? "";
-  const format = FORMAT_BY_EXT[ext];
-  const url = `url("${src}")`;
-  return format ? `${url} format("${format}")` : url;
-}
-
-/** Emit one `@font-face` rule for a custom font. */
-function fontFaceRule(face: FontFace): string {
-  const lines = [
-    `  font-family: "${face.family}";`,
-    `  src: ${fontFaceSrc(face.src)};`,
-  ];
-  if (face.weight) lines.push(`  font-weight: ${face.weight};`);
-  if (face.style) lines.push(`  font-style: ${face.style};`);
-  lines.push(`  font-display: ${face.display ?? "swap"};`);
-  return `@font-face {\n${lines.join("\n")}\n}`;
-}
-
-function fontFaceRules(theme: ResolvedTheme): string[] {
-  return theme.identity.fontFaces.map(fontFaceRule);
+/**
+ * `@import` for a Google Fonts stylesheet (DRI-108, web only). Must precede
+ * every other rule in the sheet, so it's emitted right after the leading
+ * comment. Returns null when no custom font is set.
+ */
+function fontImportRule(theme: ResolvedTheme): string | null {
+  const url = theme.identity.customFontUrl;
+  return url ? `@import url("${url}");` : null;
 }
 
 function paletteVars(theme: ResolvedTheme): string[] {
   const out: string[] = [];
   for (const [variant, scale] of Object.entries(theme.palette)) {
+    // Core token (DRI-119): the exact base hex + its readable on-color. WA's
+    // "representative colour for a variant"; emitted verbatim so brand colours
+    // survive round-trip (also fixes the DRI-115 missing-core-token bug).
+    const core = theme.core[variant as VariantName];
+    if (core) {
+      out.push(`  --wa-color-${variant}: ${core.base};`);
+      out.push(`  --wa-color-${variant}-on: ${core.on};`);
+    }
     for (const { tint, hex } of scale) {
       out.push(`  --wa-color-${variant}-${tintLabel(tint)}: ${hex};`);
     }
@@ -113,8 +95,8 @@ function scaleVars(theme: ResolvedTheme, device: DeviceName): string[] {
  *
  * Standalone (`options.device` set): a self-contained file for a single device
  * (e.g. a separate app repo). The chosen device's resolved scale knobs live in
- * `:root` directly and NO `[data-device]` blocks are emitted. `@font-face`
- * rules are still emitted at the top.
+ * `:root` directly and NO `[data-device]` blocks are emitted. A custom-font
+ * `@import` is still emitted at the top.
  */
 export function emitCss(
   theme: ResolvedTheme,
@@ -129,9 +111,9 @@ export function emitCss(
       : `/* drx-dls theme: ${theme.name} — generated, do not edit by hand */`,
   );
 
-  const faces = fontFaceRules(theme);
-  if (faces.length > 0) {
-    blocks.push(faces.join("\n\n"));
+  const fontImport = fontImportRule(theme);
+  if (fontImport) {
+    blocks.push(fontImport);
   }
 
   blocks.push(
